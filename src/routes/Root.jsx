@@ -5,6 +5,8 @@ import pic3 from '../assets/root3.jpg';
 import amazon from '../assets/amazon.png';
 import ebay from '../assets/ebay.png';
 import shopify from '../assets/shopify.png';
+import noAcct from '../assets/2x/outline_no_accounts_white_48dp.png';
+import handShake from '../assets/2x/outline_handshake_white_48dp.png';
 
 import btc from '../assets/bitcoin.svg';
 import bch from '../assets/bch.png';
@@ -38,7 +40,7 @@ export default function Root() {
 	};
 
 	return (
-		<div className="w-full bg-gray-900 min-h-screen opacity-100" id='Root'>
+		<div className="w-full bg-gray-900 min-h-screen opacity-100 text-white z-10" id='Root'>
 			<TopNav />
 			<div className='p-3'>
 				<p className='sefont-semibold text-lg'>Webpage</p>
@@ -48,8 +50,8 @@ export default function Root() {
 				className='relative'
 				style={para1Style}
 			>
-				<p className='mt-8 p-3 font-bold text-white text-3xl text-center'>Buy Items With Crypto</p>
-				<p className='mt-2 p-3 text-center text-gray-200 font-light'>Purchase various items from major retailers with your Crypto!</p>
+				<p className='mt-10 p-3 font-bold text-white text-3xl text-center'>Buy Items With Crypto</p>
+				<p className='mt-2 p-3 text-center font-light'>Purchase various items from major retailers with your Crypto!</p>
 			</div>
 			<RootImg image={pic1} />
 			<div 
@@ -74,14 +76,6 @@ export default function Root() {
 					<RootImg image={shopify} />
 				</div>
 			</div>
-			<div 
-				id='root-paras-3'
-				className='relative'
-				style={para1Style}
-			>
-				<p className='mt-6 p-3 font-bold text-white text-2xl text-center'>Choices of Payment Method</p>
-				<p className='mt-2 p-3 text-center leading-relaxed font-light'>We support Bitcoin, Bitcoin Cash, Monero, Ethereum, Dogecoin and Litecoin!</p>
-			</div>
 			<div className='p-10'>
 				<div 
 					className='flex flex-col p-10 gap-3 bg-current rounded-lg'
@@ -91,23 +85,43 @@ export default function Root() {
 						animationTimingFunction: 'ease-in-out'
 					}}
 				>
-					<div	className='flex gap-2'
-		>
+					<div 
+			className='flex gap-2'
+					>
 						<RootImg image={btc} />
 						<RootImg image={bch} />
 					</div>
-					<div	className='flex gap-2 items-center'
-		>
+					<div 
+			className='flex gap-2 items-center'
+					>
 						<RootImg image={xmr} />
 						<RootImg image={eth} />
 					</div>
-					<div	className='flex gap-2'
-		>
+					<div 
+			className='flex gap-2'
+					>
 						<RootImg image={doge} />
 						<RootImg image={ltc} />
 					</div>
 				</div>
 			</div>
+			<div 
+				id='root-paras-3'
+				className='relative'
+				style={para1Style}
+			>
+				<p className='mt-4 p-3 font-bold text-white text-2xl text-center'>Choices of Payment Method</p>
+				<p className='mt-2 p-3 text-center leading-relaxed font-light'>We support Bitcoin, Bitcoin Cash, Monero, Ethereum, Dogecoin and Litecoin!</p>
+			</div>
+			<img 
+				src={noAcct}
+				className='mt-8 py-6 px-3 w-1/4 h-auto mx-auto'
+				style={{
+					animationName: 'appearImage',
+					animationDuration: '2s',
+					animationTimingFunction: 'ease-in-out'
+				}}
+			/>
 			<div 
 				id='root-paras-4'
 				className='relative'
@@ -116,16 +130,24 @@ export default function Root() {
 				<p className='mt-6 p-3 font-bold text-white text-2xl text-center'>No Registration Required</p>
 				<p className='mt-2 p-3 text-center leading-relaxed font-light'>Save the hassle of having to register, and dive right in for shopping!</p>
 			</div>
-			<RootImg image={pic2} />
+			<img 
+				src={handShake}
+				className='mt-10 py-6 px-3 w-1/4 h-auto mx-auto'
+
+				style={{
+					animationName: 'appearImage',
+					animationDuration: '2s',
+					animationTimingFunction: 'ease-in-out'
+				}}
+			/>
 			<div 
 				id='root-paras-5'
 				className='relative'
 				style={para1Style}
 			>
-				<p className='mt-6 p-3 font-bold text-white text-2xl text-center'>Earn Crypto</p>
+				<p className='mt-6 p-3 font-bold text-white text-2xl text-center'>Earn Your Choice of Crypto</p>
 				<p className='mt-2 p-3 text-center leading-relaxed font-light'>Become our member, fulfill orders for others and earn your choice of Crypto!</p>
 			</div>
-			<RootImg image={pic3} />
 		</div>
 	);
 };
