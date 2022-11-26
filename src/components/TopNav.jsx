@@ -44,7 +44,7 @@ export default function TopNav () {
 				}}
 			>	
 				<div className='p-3'>
-					<svg className='stroke-1 stroke-white fill-white' xmlns="http://www.w3.org/2000/svg" height="48" width="48"><path d="M6 36v-3h36v3Zm0-10.5v-3h36v3ZM6 15v-3h36v3Z"/></svg>
+					<svg className='stroke-1 stroke-white fill-white' xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M6 36v-3h36v3Zm0-10.5v-3h36v3ZM6 15v-3h36v3Z"/></svg>
 					<div className='p-10 flex flex-col gap-4'>
 						<p className='font-light'>
 	Buy
@@ -54,6 +54,12 @@ export default function TopNav () {
 </p>
 						<p className='font-light'>
 	Login
+</p>
+						<p className='font-light'>
+	Register
+</p>
+						<p className='font-light'>
+	Help
 </p>
 					</div>
 				</div>
@@ -65,7 +71,7 @@ export default function TopNav () {
 					onClick={handleClick}
 					style={menuStyle}
 				>
-					<svg className='stroke-1 stroke-white fill-white' xmlns="http://www.w3.org/2000/svg" height="48" width="48"><path d="M6 36v-3h36v3Zm0-10.5v-3h36v3ZM6 15v-3h36v3Z"/></svg>
+					<svg className='stroke-1 stroke-white fill-white' xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M6 36v-3h36v3Zm0-10.5v-3h36v3ZM6 15v-3h36v3Z"/></svg>
 				</div>		
 			</div>
 		</div>

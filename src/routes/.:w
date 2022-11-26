@@ -1,0 +1,11 @@
+import './root.css';
+
+export default function Login() {
+	return (
+		<div className="flex flex-col justify-center items-center w-full bg-gray-900 min-h-screen opacity-100 text-white z-10" id="login">
+			<div className='bg-gray-800 w-11/12 p-10 rounded-lg shadow-xl'>
+				<p className='text-xl font-light'>Login</p>
+			</div>	
+		</div>
+	);
+};
