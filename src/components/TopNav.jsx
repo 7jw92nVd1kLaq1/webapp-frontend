@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const sleep1 = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -13,6 +13,28 @@ function getCookie(name) {
   return match ? match[1] : null;
 }
 
+const checkAccessToken = async () => {
+  const fetchOptions = {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+    },
+    credentials: "include",
+  };
+
+  console.log(localStorage.getItem("access_token"));
+
+  const response = await fetch(
+    "http://127.0.0.1:8000/api/check-acc-token/",
+    fetchOptions
+  );
+
+  if (response.ok) {
+    console.log("SUCCSESSS");
+  }
+  return true;
+};
+
 const updateAccessToken = async (updateCallback) => {
   const fetchOptions = {
     method: "GET",
@@ -23,14 +45,13 @@ const updateAccessToken = async (updateCallback) => {
   };
 
   const response = await fetch(
-    "http://127.0.0.1:8000/api/token/refresh/",
+    "http://127.0.0.1:8000/api/renew-acc-token/",
     fetchOptions
   );
 
   const json = await response.json();
-  console.log(json);
-  if (json.status == -1) {
-    sessionStorage.clear();
+  if (!response.ok) {
+    localStorage.clear();
     updateCallback(
       <div className="flex flex-col gap-4">
         <p className="font-light">
@@ -39,19 +60,27 @@ const updateAccessToken = async (updateCallback) => {
         <p className="font-light">
           <Link to="/register">Register</Link>
         </p>
+        <p className="font-light">
+          <a href="http://127.0.0.1:8000/accounts/github/login/">
+            Login With GitHub
+          </a>
+        </p>
       </div>
     );
     return;
   }
 
-  if (!sessionStorage.getItem("username")) {
-    sessionStorage.setItem("username", json.data.username);
+  console.log(json.data);
+  if (localStorage.getItem("username") != json.data.username) {
+    localStorage.setItem("username", json.data.username);
   }
+  if (localStorage.getItem("access_token") != json.data.token) {
+    localStorage.setItem("access_token", json.data.token);
+  }
+
   const jsxValue = (
     <div className="flex flex-col gap-4">
-      <p className="font-light">
-        Welcome! {sessionStorage.getItem("username")}!
-      </p>
+      <p className="font-light">Welcome! {localStorage.getItem("username")}!</p>
       <p className="font-light">
         <Link to="/logout">Logout</Link>
       </p>
@@ -88,12 +117,8 @@ export default function TopNav() {
   };
 
   const checkToken = () => {
-    const token = getCookie("access_token");
-    if (!token) {
-      sessionStorage.clear();
-      updateAccessToken(setIsAuthenticated);
-      return;
-    }
+    updateAccessToken(setIsAuthenticated);
+    checkAccessToken();
   };
 
   const menuStyle = {
@@ -103,8 +128,7 @@ export default function TopNav() {
 
   useEffect(() => {
     checkToken();
-    const id = setInterval(checkToken, 300000);
-
+    const id = setInterval(checkToken, 500000);
     return () => clearInterval(id);
   }, []);
 

@@ -16,7 +16,7 @@ export default function Login() {
     setPassword(target.value);
   };
 
-  const displayLoginError = () => {
+  const displayLoginError = (data) => {
     const box = document.getElementById("error-box");
 
     while (box.hasChildNodes()) box.removeChild(box.firstChild);
@@ -24,9 +24,7 @@ export default function Login() {
     const newElement = document.createElement("P");
     const newElementAttr = document.createAttribute("class");
     newElementAttr.value = "mt-4 text-red-500 text-sm font-medium";
-    const newElementTextNode = document.createTextNode(
-      "An error has occurred. Please try again."
-    );
+    const newElementTextNode = document.createTextNode(data.reason);
     newElement.setAttributeNode(newElementAttr);
     newElement.append(newElementTextNode);
     box.append(newElement);
@@ -53,17 +51,19 @@ export default function Login() {
     };
 
     const response = await fetch(
-      "http://127.0.0.1:8000/api/token/",
+      "http://127.0.0.1:8000/api/request-tokens/",
       fetchOptions
     );
 
     const data = await response.json();
 
-    if (data.status != 1) {
-      displayLoginError();
+    if (!response.ok) {
+      displayLoginError(data);
       return;
     }
 
+    localStorage.setItem("username", data.data.username);
+    localStorage.setItem("access_token", data.data.token);
     navigate("/");
   };
 

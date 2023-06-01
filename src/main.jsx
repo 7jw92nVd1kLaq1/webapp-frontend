@@ -1,6 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
+import Admin from "./routes/Admin/Admin";
+import Users from "./routes/Admin/Users";
+import UsersDetail from "./routes/Admin/UsersDetail";
 import Buy from "./routes/Buy";
 import HomePage from "./routes/HomePage";
 import Login from "./routes/Login";
@@ -8,6 +11,7 @@ import Overview from "./routes/Overview";
 import Register from "./routes/Register";
 import Root from "./routes/Root";
 import { logoutUser, validateCookie } from "./utils/cookie";
+import { checkAccessTokenValidity } from "./utils/authentication";
 
 import {
   createBrowserRouter,
@@ -31,6 +35,26 @@ const router = createBrowserRouter([
       {
         path: "buy",
         element: <Buy />,
+        loader: async () => {
+          const isTokenValid = await checkAccessTokenValidity();
+          if (!isTokenValid) {
+            return redirect("/");
+          }
+        },
+      },
+    ],
+  },
+  {
+    path: "/admin",
+    element: <Admin />,
+    children: [
+      {
+        path: "users",
+        element: <Users />,
+      },
+      {
+        path: "users/:userId",
+        element: <UsersDetail />,
       },
     ],
   },
@@ -48,7 +72,7 @@ const router = createBrowserRouter([
     path: "/logout",
     loader: async () => {
       const isLoggedIn = await validateCookie();
-      if (isLoggedIn == 1) await logoutUser();
+      if (isLoggedIn) await logoutUser();
       return redirect("/login");
     },
   },
@@ -65,7 +89,5 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  <RouterProvider router={router} />
 );

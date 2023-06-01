@@ -113,6 +113,8 @@ export default function Register() {
 
       const formDataJsonString = JSON.stringify(formDataObject);
 
+      console.log(formDataJsonString);
+
       const fetchOptions = {
         method: "POST",
         headers: {
@@ -124,7 +126,7 @@ export default function Register() {
       };
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/test_csrf/",
+        "http://127.0.0.1:8000/api/registration/",
         fetchOptions
       );
       const json = await response.json();
@@ -140,7 +142,9 @@ export default function Register() {
         return;
       }
 
-      sessionStorage.setItem("username", json.username);
+      localStorage.setItem("username", json.data.username);
+      localStorage.setItem("access_token", json.data.token);
+      console.log(json);
       navigate("/");
     };
     real_work();
@@ -149,7 +153,7 @@ export default function Register() {
   const afterLoadFunction = async () => {
     try {
       const apiHost = "http://127.0.0.1:8000";
-      const resp = await fetch(`${apiHost}/api/csrf/`, {
+      const resp = await fetch(`${apiHost}/api/csrftoken/`, {
         method: "GET",
       });
 
@@ -230,7 +234,7 @@ export default function Register() {
         onSubmit={handleSubmit}
         id="registerForm"
         method="POST"
-        action="http://127.0.0.1:8000/api/test_csrf/"
+        action="http://127.0.0.1:8000/api/csrftoken/"
         className="w-11/12"
       >
         <div className="bg-gray-800 mx-auto my-4 lg:w-1/2 w-full p-10 rounded-lg shadow-xl divide-y-2">
@@ -302,14 +306,17 @@ export default function Register() {
                 <PasswordRules />
               </div>
             </div>
-            <div className="mt-3" id="passwordConfirm-box">
-              <label className="text-sm block mb-2" htmlFor="passwordConfirm">
+            <div className="mt-3" id="password_confirmation-box">
+              <label
+                className="text-sm block mb-2"
+                htmlFor="password_confirmation"
+              >
                 Re-Type Password
               </label>
               <input
                 className="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 sm:text-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                id="passwordConfirm"
-                name="passwordConfirm"
+                id="password_confirmation"
+                name="password_confirmation"
                 value={passwordConfirm}
                 onChange={handlePasswordConfirmChange}
                 type="password"
@@ -318,14 +325,14 @@ export default function Register() {
             </div>
           </div>
           <div className="py-8">
-            <div id="secondPassword-box">
-              <label className="text-sm block mb-2" htmlFor="secondPassword">
+            <div id="second_password-box">
+              <label className="text-sm block mb-2" htmlFor="second_password">
                 Second Password
               </label>
               <input
                 className="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 sm:text-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                id="secondPassword"
-                name="secondPassword"
+                id="second_password"
+                name="second_password"
                 value={secondPassword}
                 onChange={handleSecondPasswordChange}
                 type="password"
@@ -338,17 +345,17 @@ export default function Register() {
                 <SecondPasswordRules />
               </div>
             </div>
-            <div className="mt-3" id="secondPasswordConfirm-box">
+            <div className="mt-3" id="second_password_confirmation-box">
               <label
                 className="text-sm block mb-2"
-                htmlFor="secondPasswordConfirm"
+                htmlFor="second_password_confirmation"
               >
                 Re-Type Second Password
               </label>
               <input
                 className="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 sm:text-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                id="secondPasswordConfirm"
-                name="secondPasswordConfirm"
+                id="second_password_confirmation"
+                name="second_password_confirmation"
                 value={secondPasswordConfirm}
                 onChange={handleSecondPasswordConfirmChange}
                 type="password"
