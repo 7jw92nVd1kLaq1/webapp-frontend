@@ -1,3 +1,6 @@
+import { validateCookie } from "./cookie";
+import { redirect } from "react-router-dom";
+
 const backend = "http://127.0.0.1:8000";
 
 export const checkAccessTokenValidity = async () => {
@@ -15,4 +18,71 @@ export const checkAccessTokenValidity = async () => {
 
   if (!response.ok) return false;
   return true;
+};
+
+export const logoutUser = async () => {
+  await fetch(`${backend}/api/delete-tokens/`, {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+    },
+  });
+  localStorage.clear();
+};
+
+export const checkIfUser = async () => {
+  const isTokenValid = await checkAccessTokenValidity();
+  if (!isTokenValid) {
+    return redirect("/");
+  }
+};
+
+export const checkIfLoggedIn = async () => {
+  console.log("YESSS");
+  const doesCookieExist = await validateCookie();
+  if (doesCookieExist) {
+    return redirect("/");
+  }
+};
+
+export const logOut = async () => {
+  const isLoggedIn = await validateCookie();
+  if (isLoggedIn) await logoutUser();
+  return redirect("/login");
+};
+
+export const getSubscriptionToken = async () => {
+  const channelName = localStorage.getItem("channel");
+  const channelNameEncoded = encodeURIComponent(channelName);
+
+  const token = await renewSubscriptionToken(
+    `${backend}/api/renew-sub-token/?channel=${channelNameEncoded}`,
+    ""
+  );
+  return token;
+};
+
+export const renewSubscriptionToken = (url, ctx) => {
+  return new Promise((resolve, reject) => {
+    fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Unexpected status code ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        resolve(data.data.token);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 };

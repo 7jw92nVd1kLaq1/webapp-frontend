@@ -11,7 +11,7 @@ export default function Admin() {
   };
 
   return (
-    <div className="flex w-full bg-gray-900 min-h-screen opacity-100 text-white z-10 shadow-xl">
+    <div className="flex w-full bg-slate-200 min-h-screen opacity-100 text-white z-10 shadow-xl">
       <AdminNav />
       <div className="lg:w-9/12 w-full">
         <Outlet />

@@ -18,6 +18,7 @@ export const validateCookie = async () => {
     method: "GET",
     credentials: "include",
   });
+
   if (!resp.ok) return false;
   return true;
 };
