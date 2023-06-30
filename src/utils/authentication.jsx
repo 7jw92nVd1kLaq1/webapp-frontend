@@ -1,10 +1,11 @@
 import { validateCookie } from "./cookie";
 import { redirect } from "react-router-dom";
+import store from "../redux/store";
 
 const backend = "http://127.0.0.1:8000";
 
 export const checkAccessTokenValidity = async () => {
-  const token = localStorage.getItem("access_token");
+  const token = store.getState().userSession.access_token;
   if (!token) return false;
 
   const response = await fetch(`${backend}/api/check-acc-token/`, {
@@ -21,11 +22,12 @@ export const checkAccessTokenValidity = async () => {
 };
 
 export const logoutUser = async () => {
+  const token = store.getState().userSession.access_token;
   await fetch(`${backend}/api/delete-tokens/`, {
     method: "GET",
     credentials: "include",
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      Authorization: `Bearer ${token}`,
     },
   });
   localStorage.clear();

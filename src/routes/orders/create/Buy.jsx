@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import BuyStageIndicator from "./components/BuyStageIndicator";
-import ChooseProvider from "./components/stages/ChooseProvider";
 import AcceptURLsForItems from "./components/stages/AcceptURLsForItems";
+import ProvideAddCostAddReq from "./components/stages/ProvideAddCostAddReq";
+import ProvideShippingAddress from "./components/stages/ProvideShippingAddress";
+import ReviewOrder from "./components/stages/ReviewOrder";
+import ProcessOrder from "./components/stages/ProcessOrder";
 
-const renderStageIndicator = (data, currentStage, callback) => {
+import { resetState } from "@/redux/shoppingBasketSlice";
+import { setTotal, reset } from "@/redux/orderCreationStepsSlice";
+
+const renderStageIndicator = (data, currentStage) => {
   const returnArray = [];
   for (let [key, value] of Object.entries(data)) {
     returnArray.push(
@@ -12,7 +19,6 @@ const renderStageIndicator = (data, currentStage, callback) => {
         stageNumber={parseInt(key) + 1}
         stageDescription={value}
         active={key == currentStage ? true : false}
-        setStage={callback}
       />
     );
   }
@@ -20,15 +26,31 @@ const renderStageIndicator = (data, currentStage, callback) => {
 };
 
 export default function Buy() {
+  const dispatch = useDispatch();
+  const currentStep = useSelector((state) => state.orderCreationSteps.step);
   const [stagesName, setStagesName] = useState([
-    "Choose Provider",
     "Add Items",
     "Provide Details",
     "Make Payment",
     "Finalize",
+    "Processing Order",
   ]);
-  const [stages, setStages] = useState([<ChooseProvider />]);
-  const [currentStage, setCurrentStage] = useState(0);
+  const [stages, setStages] = useState([
+    <AcceptURLsForItems />,
+    <ProvideAddCostAddReq />,
+    <ProvideShippingAddress />,
+    <ReviewOrder />,
+    <ProcessOrder />,
+  ]);
+
+  useEffect(() => {
+    dispatch(setTotal(stagesName.length));
+
+    return () => {
+      dispatch(resetState());
+      dispatch(reset());
+    };
+  }, []);
 
   return (
     <div
@@ -36,11 +58,9 @@ export default function Buy() {
       id="parentBox"
     >
       <div className="flex justify-center items-center w-full py-3 text-black font-semibold divide-x divide-gray-500 border-b border-gray-300 shadow-sm bg-white">
-        {renderStageIndicator(stagesName, currentStage, setCurrentStage)}
+        {renderStageIndicator(stagesName, currentStep)}
       </div>
-      <div className="grow w-full mx-auto pt-20">
-        <AcceptURLsForItems />
-      </div>
+      <div className="grow w-full mx-auto pt-20">{stages[currentStep]}</div>
     </div>
   );
 }

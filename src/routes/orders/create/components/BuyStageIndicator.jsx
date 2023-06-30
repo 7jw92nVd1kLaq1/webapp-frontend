@@ -2,12 +2,7 @@ export default function BuyStageIndicator(props) {
   const inactiveCircleClass =
     "relative p-3 rounded-full border border-gray-500";
   return (
-    <div
-      className="flex items-center gap-3 px-4"
-      onClick={() => {
-        props.setStage(props.stageNumber - 1);
-      }}
-    >
+    <div className="flex items-center gap-3 px-4">
       <div
         className={
           props.active === false

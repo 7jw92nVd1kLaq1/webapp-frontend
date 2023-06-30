@@ -10,6 +10,9 @@ import Overview from "@/routes/Overview";
 import Register from "@/routes/authentication/register/Register";
 import Root from "@/routes/Root";
 
+import { Provider } from "react-redux";
+import reduxStore from "@/redux/store";
+
 import {
   checkIfUser,
   checkIfLoggedIn,
@@ -43,5 +46,9 @@ const another_route = (
 const routes = createBrowserRouter(createRoutesFromElements(another_route));
 
 export default function App() {
-  return <RouterProvider router={routes} />;
+  return (
+    <Provider store={reduxStore}>
+      <RouterProvider router={routes} />
+    </Provider>
+  );
 }

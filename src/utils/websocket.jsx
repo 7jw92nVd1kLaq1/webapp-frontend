@@ -20,7 +20,11 @@ export const createCentrifugeClientObj = (token) => {
   return client;
 };
 
-export const subscribeToChannel = (centrifuge, subToken, callback) => {
+export const subscribeToChannelForAcceptingItem = (
+  centrifuge,
+  subToken,
+  callback
+) => {
   const channelName = localStorage.getItem("channel");
   const channelNameEncoded = encodeURIComponent(channelName);
   const sub = centrifuge.newSubscription(channelName, {
@@ -36,6 +40,31 @@ export const subscribeToChannel = (centrifuge, subToken, callback) => {
     console.log("Item Received \n\n");
     console.log(ctx.data);
     callback(ctx.data.item);
+  });
+
+  return sub;
+};
+
+export const subscribeToChannelForOrderProcess = (
+  centrifuge,
+  subToken,
+  callback
+) => {
+  const channelName = localStorage.getItem("channel");
+  const channelNameEncoded = encodeURIComponent(channelName);
+  const sub = centrifuge.newSubscription(channelName, {
+    token: subToken,
+    getToken: function (ctx) {
+      return renewSubscriptionToken(
+        `http://127.0.0.1:8000/api/renew-sub-token/?channel=${channelNameEncoded}`,
+        ctx
+      );
+    },
+  });
+  sub.on("publication", (ctx) => {
+    console.log("Status Received \n\n");
+    console.log(ctx.data.current_status);
+    callback(ctx.data.current_status);
   });
 
   return sub;

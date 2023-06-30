@@ -10,7 +10,7 @@ export default function Root() {
       id="Root"
     >
       <TopNav />
-      <div className="p-3.5">
+      <div className="p-4 px-8">
         <p className="font-semibold text-lg">BitShop</p>
       </div>
       <Outlet />
