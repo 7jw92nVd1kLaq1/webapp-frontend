@@ -8,14 +8,15 @@ import notification from "@/assets/notification.svg";
 import profile from "@/assets/profile.svg";
 import profile_settings from "@/assets/profile_settings.svg";
 import register from "@/assets/registration.svg";
+import viewOrder from "@/assets/viewOrder.svg";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { setSession } from "@/redux/userSessionSlice";
 
-const NotificationDropDownButton = ({ username }) => {
+const NotificationDropDownButton = () => {
   return (
     <button id="notification-menu-icon" className="relative mr-4">
       <img
@@ -63,9 +64,8 @@ const UserDropDownButton = ({ username }) => {
         >
           <div className="pb-4 text-left">
             <span className="font-normal">Welcome,</span>{" "}
-            <span className="font-semibold">
+            <span className="font-semibold truncate">
               {username ? username : "Visitor"}
-              {"!"}
             </span>
           </div>
           {username ? (
@@ -87,15 +87,27 @@ const UserDropDownButton = ({ username }) => {
             <div className="pt-4 pb-4 flex flex-col gap-4">
               <button className="flex items-center gap-4 text-sm">
                 <img src={login} className="w-6 h-6" />
-                <span>Login</span>
+                <Link to={"/login"}>
+                  <span>Login</span>
+                </Link>
               </button>
               <button className="flex items-center gap-4 text-sm">
                 <img src={register} className="w-6 h-6" />
-                <span>Register</span>
+                <Link to={"/register"}>
+                  <span>Register</span>
+                </Link>
               </button>
             </div>
           )}
           <div className="pt-4 pb-4 flex flex-col gap-4">
+            {username && (
+              <button className="flex items-center gap-4 text-sm">
+                <img src={viewOrder} className="w-6 h-6" />
+                <Link to={"/viewOrders/all"}>
+                  <span>View Your Orders</span>
+                </Link>
+              </button>
+            )}
             <button className="flex items-center gap-4 text-sm">
               <img src={buy} className="w-6 h-6" />
               <Link to={"/buy"}>
@@ -104,7 +116,9 @@ const UserDropDownButton = ({ username }) => {
             </button>
             <button className="flex items-center gap-4 text-sm">
               <img src={earn} className="w-6 h-6" />
-              <span>Earn</span>
+              <Link to={"/earn"}>
+                <span>Earn</span>
+              </Link>
             </button>
           </div>
           <div className="pt-4 flex flex-col gap-4">
@@ -152,10 +166,8 @@ export default function TopNav() {
       fetchOptions
     );
 
-    console.log(response.ok);
     if (response.ok) {
       const json = await response.json();
-      console.log(json);
       dispatch(setSession(json.data));
     }
   };
@@ -176,9 +188,11 @@ export default function TopNav() {
   return (
     <div className="fixed z-50">
       <div className="w-full px-8 bg-gray-800 fixed top-0 text-white shadow-lg p-4 z-50 flex justify-between items-center">
-        <p className="font-semibold text-lg">BitShop</p>
+        <p className="font-semibold text-lg">
+          <Link to={"/"}>BitShop</Link>
+        </p>
         <div className="flex items-center gap-5">
-          <NotificationDropDownButton username={username} />
+          {username && <NotificationDropDownButton />}
           <UserDropDownButton username={username} />
         </div>
         <div className="w-72 absolute right-0 top-full p-2 rounded-md"></div>

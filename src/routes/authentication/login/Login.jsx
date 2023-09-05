@@ -125,6 +125,10 @@ export default function Login() {
             <button className="mt-8 rounded-lg bg-blue-800 shadow-lg p-3">
               <Link to="/register">Register</Link>
             </button>
+
+            <button className="mt-8 rounded-lg bg-blue-800 shadow-lg p-3">
+              <a href="http://127.0.0.1:8000/accounts/github/login/">GitHub</a>
+            </button>
           </div>
         </form>
       </div>

@@ -54,9 +54,8 @@ export const logOut = async () => {
   return redirect("/login");
 };
 
-export const getSubscriptionToken = async () => {
-  const channelName = localStorage.getItem("channel");
-  const channelNameEncoded = encodeURIComponent(channelName);
+export const getSubscriptionToken = async (channel) => {
+  const channelNameEncoded = encodeURIComponent(channel);
 
   const token = await renewSubscriptionToken(
     `${backend}/api/renew-sub-token/?channel=${channelNameEncoded}`,

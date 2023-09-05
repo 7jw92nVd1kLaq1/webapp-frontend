@@ -1,4 +1,4 @@
-import "./stages/animations.css";
+import "../stages/animations.css";
 import trash from "@/assets/delete.svg";
 import add from "@/assets/add_amount.svg";
 import remove from "@/assets/remove_amount.svg";

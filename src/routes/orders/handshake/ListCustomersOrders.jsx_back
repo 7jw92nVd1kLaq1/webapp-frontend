@@ -1,0 +1,144 @@
+import btc from "@/assets/bitcoin.svg";
+import sort from "@/assets/sort.svg";
+import refresh from "@/assets/refresh.svg";
+import tshirt from "@/assets/reset.jpeg";
+
+import left from "@/assets/left.svg";
+import right from "@/assets/right.svg";
+
+export default function ListCustomersOrders() {
+  return (
+    <div
+      className="flex flex-col items-stretch min-h-screen w-full mx-auto overflow-hidden bg-slate-100 text-black"
+      id="parentBox"
+    >
+      <div className="flex justify-end items-center w-full px-16 text-black font-semibold border-b border-gray-300 shadow-sm bg-white">
+        <div className="flex items-stretch gap-2 my-2">
+          <button className="flex items-center gap-1 p-2 px-3 text-sky-500 border border-sky-500 font-medium rounded-lg">
+            <img src={sort} className="w-6 h-6" />
+            <p className="hidden md:block">Sort By</p>
+          </button>
+          <button className="flex items-center justify-center bg-sky-600 rounded-lg p-2 px-3 gap-1 text-white">
+            <img className="w-6 h-6" src={refresh} />
+          </button>
+        </div>
+      </div>
+      <div className="my-10 mx-16 grow">
+        <div className="mt-5">
+          <p className="font-semibold text-3xl">Earn Crypto</p>
+          <p className="mt-3 text-slate-500 ">
+            Fulfill Orders and Earn Cryptocurrency!
+          </p>
+        </div>
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div className="p-6 bg-white rounded-lg shadow-sm flex flex-col">
+            <img src={tshirt} className="w-1/2 block mx-auto mb-4" />
+            <div className="flex flex-col items-end overflow-x-auto">
+              <div className="mt-6 flex flex-col gap-1 overflow-x-auto justify-end items-end w-full">
+                <p className="truncate w-3/4 font-medium text-right">
+                  asvnasodvnoansdovnaosnvdoanosnvdaosdnv
+                </p>
+                <p className="font-light w-fit text-sm text-slate-500">
+                  and 2 items
+                </p>
+              </div>
+              <p className="mt-5 text-lg">$90.00</p>
+              <div className="mt-2 items-end flex flex-col">
+                <p className="mt-2 text-sm font-medium text-slate-600 text-right">
+                  <span className="font-light">Fulfill and Earn</span>{" "}
+                  0.00030000
+                </p>
+                <p className="mt-2 text-xs font-medium text-slate-600 text-right">
+                  @ $30000.00
+                </p>
+                <div className="mt-2 text-sm flex gap-1 items-center font-medium">
+                  <img className="w-4 h-4" src={btc} />
+                  Bitcoin
+                </div>
+              </div>
+              <div className="mt-7 text-sm text-slate-400 text-right">
+                Requested By{" "}
+                <span className="font-semibold text-slate-600">James234</span>
+              </div>
+            </div>
+          </div>
+          <div className="p-6 bg-white rounded-lg shadow-sm flex flex-col">
+            <img src={tshirt} className="w-1/2 block mx-auto mb-4" />
+            <div className="flex flex-col items-end overflow-x-auto">
+              <div className="mt-6 flex flex-col gap-1 overflow-x-auto justify-end items-end w-full">
+                <p className="truncate w-3/4 font-medium text-right">
+                  asvnasodvnoansdovnaosnvdoanosnvdaosdnv
+                </p>
+                <p className="font-light w-fit text-sm text-slate-500">
+                  and 2 items
+                </p>
+              </div>
+              <p className="mt-5 text-lg">$90.00</p>
+              <div className="mt-2 items-end flex flex-col">
+                <p className="mt-2 text-sm font-medium text-slate-600 text-right">
+                  <span className="font-light">Fulfill and Earn</span>{" "}
+                  0.00030000
+                </p>
+                <p className="mt-2 text-xs font-medium text-slate-600 text-right">
+                  @ $30000.00
+                </p>
+                <div className="mt-2 text-sm flex gap-1 items-center font-medium">
+                  <img className="w-4 h-4" src={btc} />
+                  Bitcoin
+                </div>
+              </div>
+              <div className="mt-7 text-sm text-slate-400 text-right">
+                Requested By{" "}
+                <span className="font-semibold text-slate-600">James234</span>
+              </div>
+            </div>
+          </div>
+          <div className="p-6 bg-white rounded-lg shadow-sm flex flex-col">
+            <img src={tshirt} className="w-1/2 block mx-auto mb-4" />
+            <div className="flex flex-col items-end overflow-x-auto">
+              <div className="mt-6 flex flex-col gap-1 overflow-x-auto justify-end items-end w-full">
+                <p className="truncate w-3/4 font-medium text-right">
+                  asvnasodvnoansdovnaosnvdoanosnvdaosdnv
+                </p>
+                <p className="font-light w-fit text-sm text-slate-500">
+                  and 2 items
+                </p>
+              </div>
+              <p className="mt-5 text-lg">$90.00</p>
+              <div className="mt-2 items-end flex flex-col">
+                <p className="mt-2 text-sm font-medium text-slate-600 text-right">
+                  <span className="font-light">Fulfill and Earn</span>{" "}
+                  0.00030000
+                </p>
+                <p className="mt-2 text-xs font-medium text-slate-600 text-right">
+                  @ $30000.00
+                </p>
+                <div className="mt-2 text-sm flex gap-1 items-center font-medium">
+                  <img className="w-4 h-4" src={btc} />
+                  Bitcoin
+                </div>
+              </div>
+              <div className="mt-7 text-sm text-slate-400 text-right">
+                Requested By{" "}
+                <span className="font-semibold text-slate-600">James234</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mt-16 mb-8 w-fit flex mx-auto text-sm font-semibold gap-4 items-center">
+          <button className="px-3 p-2 rounded-md">
+            <img src={left} className="w-4 h-4" />
+          </button>
+          <button className="px-3 p-2 rounded-md">1</button>
+          <button className="px-3 p-2 rounded-md border border-sky-500 bg-sky-100">
+            2
+          </button>
+          <button className="px-3 p-2 rounded-md">3</button>
+          <button className="px-3 p-2 rounded-md">
+            <img src={right} className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

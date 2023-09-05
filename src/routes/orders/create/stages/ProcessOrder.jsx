@@ -10,11 +10,8 @@ import { getSubscriptionToken } from "@/utils/authentication";
 import { getCSRFToken } from "@/utils/cookie";
 import { useEffect, useRef, useState } from "react";
 
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-
-import { reset } from "@/redux/orderCreationStepsSlice";
-import { resetState } from "@/redux/shoppingBasketSlice";
 
 const WaitingCircle = (props) => {
   return (
@@ -122,14 +119,20 @@ const FailureCircle = (props) => {
   );
 };
 
+const StatusCircle = ({ processStatus }) => {
+  if (processStatus != "-1")
+    return processStatus != "2" ? <WaitingCircle /> : <CompleteCircle />;
+  else <FailureCircle />;
+};
+
 export default function ProcessOrder() {
   const centrifugeClientObj = useRef();
   const subToken = useRef();
   const subChannelObj = useRef();
 
-  const dispatch = useDispatch();
   const orderInfo = useSelector((state) => state.shoppingBasket);
   const access_token = useSelector((state) => state.userSession.access_token);
+  const username = useSelector((state) => state.userSession.username);
 
   const [processStatus, setProcessStatus] = useState(NaN);
   const processStatusObj = {
@@ -162,7 +165,8 @@ export default function ProcessOrder() {
     const csrfToken = await getCSRFToken();
     localStorage.setItem("CSRFToken", csrfToken);
 
-    const sub_token = await getSubscriptionToken();
+    const channel = `${username}#${username}`;
+    const sub_token = await getSubscriptionToken(channel);
     subToken.current = sub_token;
 
     const centrifugeClient = createCentrifugeClientObj(access_token);
@@ -193,12 +197,7 @@ export default function ProcessOrder() {
     <div className="text-center text-black lg:w-11/12 w-full mx-auto">
       <h1 className="font-bold text-3xl">Generating Order</h1>
       <div className="w-full md:w-5/6 mt-20 md:flex md:flex-col items-center justify-center mx-auto gap-6 ">
-        {processStatus != "-1" && processStatus != "2" ? (
-          <WaitingCircle />
-        ) : (
-          <CompleteCircle />
-        )}
-        {processStatus === "-1" && <FailureCircle />}
+        <StatusCircle processStatus={processStatus} />
         <p className="text-lg mt-10 font-medium">
           {!isNaN(processStatus) && processStatusObj[processStatus]}
         </p>

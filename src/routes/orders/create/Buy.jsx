@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import BuyStageIndicator from "./components/BuyStageIndicator";
-import AcceptURLsForItems from "./components/stages/AcceptURLsForItems";
-import ProvideAddCostAddReq from "./components/stages/ProvideAddCostAddReq";
-import ProvideShippingAddress from "./components/stages/ProvideShippingAddress";
-import ReviewOrder from "./components/stages/ReviewOrder";
-import ProcessOrder from "./components/stages/ProcessOrder";
+import AcceptURLsForItems from "./stages/AcceptURLsForItems";
+import ProvideAddCostAddReq from "./stages/ProvideAddCostAddReq";
+import ProvideShippingAddress from "./stages/ProvideShippingAddress";
+import ReviewOrder from "./stages/ReviewOrder";
+import ProcessOrder from "./stages/ProcessOrder";
 
 import { resetState } from "@/redux/shoppingBasketSlice";
 import { setTotal, reset } from "@/redux/orderCreationStepsSlice";

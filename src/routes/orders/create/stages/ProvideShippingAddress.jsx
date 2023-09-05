@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { ItemBasketDisplayBox } from "../ItemBasketDisplayBox";
+import { ItemBasketDisplayBox } from "../components/ItemBasketDisplayBox";
 import {
   modifyShippingAddress,
   modifyShippingAddressCountry,

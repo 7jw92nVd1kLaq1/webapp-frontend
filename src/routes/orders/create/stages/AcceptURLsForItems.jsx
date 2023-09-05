@@ -15,7 +15,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { addItem, removeItem } from "@/redux/shoppingBasketSlice";
 import { increment } from "@/redux/orderCreationStepsSlice";
 
-import { ItemBasketDisplayBox } from "../ItemBasketDisplayBox";
+import { ItemBasketDisplayBox } from "../components/ItemBasketDisplayBox";
 
 const ItemResultWaitingBox = () => {
   return (
@@ -199,6 +199,7 @@ export default function AcceptURLsForItems() {
   const dispatch = useDispatch();
   const items = useSelector((state) => state.shoppingBasket.value);
   const access_token = useSelector((state) => state.userSession.access_token);
+  const username = useSelector((state) => state.userSession.username);
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -235,20 +236,16 @@ export default function AcceptURLsForItems() {
   };
 
   const useEffectAsync = async () => {
-    const username = localStorage.getItem("username");
-    localStorage.setItem("channel", `${username}#${username}`);
-
     const token = await getCSRFToken();
     localStorage.setItem("CSRFToken", token);
     console.log("CSRFToken Set!");
 
-    const sub_token = await getSubscriptionToken();
+    const channel = `${username}#${username}`;
+    const sub_token = await getSubscriptionToken(channel);
     subToken.current = sub_token;
     console.log("Subscription Token Set!");
 
-    const centrifugeClient = createCentrifugeClientObj(
-      localStorage.getItem("access_token")
-    );
+    const centrifugeClient = createCentrifugeClientObj(access_token);
     console.log("Centrifuge Client Created!");
     centrifugeObj.current = centrifugeClient;
 
