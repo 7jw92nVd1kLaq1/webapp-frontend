@@ -13,23 +13,18 @@ import close from "@/assets/close.svg";
 
 import user from "@/assets/user_black.svg";
 import star from "@/assets/star.svg";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useEffect } from "react";
 
-import {
-  setEntries,
-  resetState,
-  setDetail,
-  unsetDetail,
-  modifyAdditionalEntriesDetails,
-} from "@/redux/ListCustomerOrdersSlice";
+import useCustomersOrders from "@/hooks/useCustomersOrders";
+import useCustomersOrdersDetails from "@/hooks/useCustomersOrdersDetails";
 
 const CustomerInfo = ({ customer }) => {
-  const username = customer && customer.username;
-  const average_rating =
-    customer &&
-    (customer.average_rating ? customer.average_rating.toFixed(2) : "0.0");
-  const registrationDate = customer && new Date(customer.date_joined);
+  const username = customer.username;
+  const average_rating = customer.average_rating
+    ? customer.average_rating.toFixed(2)
+    : "0.0";
+  const registrationDate = new Date(customer.date_joined);
   const registrationDateString = registrationDate
     ? `${registrationDate.getMonth()}/${registrationDate.getDay()}/${registrationDate.getFullYear()}`
     : null;
@@ -55,21 +50,6 @@ const CustomerInfo = ({ customer }) => {
 };
 
 const OrderInfo = ({ entry }) => {
-  const additionalEntriesDetails = useSelector(
-    (state) => state.customerRequests.additionalEntriesDetails
-  );
-  let entryAdditionalDetails;
-
-  if (!entry) {
-    entryAdditionalDetails = null;
-  } else {
-    entryAdditionalDetails = additionalEntriesDetails.hasOwnProperty(
-      entry.url_id
-    )
-      ? additionalEntriesDetails[entry.url_id]
-      : null;
-  }
-
   return (
     <div className="mt-8">
       <h4 className="font-semibold text-lg">Order Info</h4>
@@ -78,20 +58,12 @@ const OrderInfo = ({ entry }) => {
         <div>
           <p>Estimated Earning </p>
           <p className="text-lg flex flex-col mt-2 gap-1">
-            <span className="font-semibold">
-              {entryAdditionalDetails &&
-                entryAdditionalDetails.total_price_in_crypto}
-            </span>
+            <span className="font-semibold">{entry.total_price_in_crypto}</span>
             <span className="font-medium">
-              {entryAdditionalDetails &&
-                entryAdditionalDetails.total_price_in_fiat}{" "}
-              USD{" "}
+              {entry.total_price_in_fiat} USD{" "}
             </span>
             <span className="text-sm font-medium">
-              @{" "}
-              {entryAdditionalDetails &&
-                entryAdditionalDetails.cryptocurrency_rate}{" "}
-              USD
+              @ {entry.cryptocurrency_rate} USD
             </span>
           </p>
           <p className="font-semibold mt-2">
@@ -109,56 +81,57 @@ const OrderInfo = ({ entry }) => {
       </div>
       <div className="mt-5 flex items-center">
         <p className="w-1/2 text-slate-400">ID</p>
-        <p className="w-1/2 text-right font-medium">{entry && entry.url_id}</p>
+        <p className="w-1/2 text-right font-medium">{entry.url_id}</p>
       </div>
     </div>
   );
 };
 
-const OrderItems = () => {
+const OrderItems = ({ entry }) => {
+  const payment = entry.payment.payment;
   return (
     <div className="mt-8">
       <h4 className="font-semibold text-lg">Requested Item(s)</h4>
       <div className="mt-5 w-full font-light flex flex-col text-sm divide-y divide-slate-200 border-t border-b border-slate-200">
-        <div className="flex gap-8 items-center p-5 rounded-lg">
-          <img src={tshirt} className="w-20 h-auto" />
-          <div className="text-left flex flex-col gap-2">
-            <p className="font-light">Very fancy tshrit</p>
-            <p className="font-medium">$10,000</p>
-            <p className="font-medium">Qty: 1</p>
-            <p className="text-slate-400">Size: S</p>
-          </div>
-        </div>
-        <div className="flex gap-8 items-center p-5 rounded-lg">
-          <img src={tshirt} className="w-20 h-auto" />
-          <div className="text-left flex flex-col gap-2">
-            <p className="font-light">Very fancy tshrit</p>
-            <p className="font-medium">$10,000</p>
-            <p className="font-medium">Qty: 1</p>
-            <p className="text-slate-400">Size: S</p>
-          </div>
-        </div>
-        <div className="flex gap-8 items-center p-5 rounded-lg">
-          <img src={tshirt} className="w-20 h-auto" />
-          <div className="text-left flex flex-col gap-2">
-            <p className="font-light">Very fancy tshrit</p>
-            <p className="font-medium">$10,000</p>
-            <p className="font-medium">Qty: 1</p>
-            <p className="text-slate-400">Size: S</p>
-          </div>
-        </div>
+        {entry.order_items.map((item) => {
+          return (
+            <div className="flex gap-8 items-center p-5 rounded-lg">
+              <img
+                src={item.image_url ? item.image_url : tshirt}
+                className="w-20 h-auto"
+              />
+              <div className="text-left flex flex-col gap-2">
+                <p className="font-light">{item.name}</p>
+                <p className="font-medium">
+                  {item.price} {payment.fiat_currency}
+                </p>
+                <p className="font-medium">Qty: {item.quantity}</p>
+                <p className="text-slate-400">Size: S</p>
+              </div>
+            </div>
+          );
+        })}
         <div className="flex flex-col gap-4 p-5 rounded-lg font-light">
           <div className="flex justify-between items-center w-full">
             <p className="text-slate-400">Subtotal</p>
-            <p className="font-normal">$30,000</p>
+            <p className="font-normal">
+              {(
+                entry.total_price_in_fiat - parseFloat(payment.additional_cost)
+              ).toFixed(2)}{" "}
+              {payment.fiat_currency}
+            </p>
           </div>
           <div className="flex justify-between items-center w-full">
             <p className="text-slate-400">Shipping, Tax</p>
-            <p className="font-normal">$70,000</p>
+            <p className="font-normal">
+              {payment.additional_cost} {payment.fiat_currency}
+            </p>
           </div>
           <div className="flex justify-between items-end w-full mt-1">
             <p className="text-slate-400">Total</p>
-            <p className="text-base font-normal">$100,000</p>
+            <p className="text-base font-normal">
+              {entry.total_price_in_fiat} {payment.fiat_currency}
+            </p>
           </div>
         </div>
       </div>
@@ -167,18 +140,7 @@ const OrderItems = () => {
 };
 
 const OrderDetail = () => {
-  let displayedEntry = null;
-  const targetOrder = useSelector(
-    (state) => state.customerRequests.selectedEntry
-  );
-  const entries = useSelector((state) => state.customerRequests.entries);
-
-  for (const item of entries) {
-    if (item.url_id === targetOrder) {
-      displayedEntry = item;
-      break;
-    }
-  }
+  const { orderDetail } = useCustomersOrdersDetails();
 
   const toggleOrderDetail = () => {
     const elem = document.getElementById("itemDetail");
@@ -213,36 +175,35 @@ const OrderDetail = () => {
           <p className="font-light text-slate-500">
             Requested By{" "}
             <span className="font-semibold text-black">
-              {displayedEntry && displayedEntry.customer.customer.username}
+              {orderDetail && orderDetail.customer.customer.username}
             </span>
           </p>
         </div>
-        <CustomerInfo
-          customer={displayedEntry ? displayedEntry.customer.customer : null}
-        />
-        <OrderInfo entry={displayedEntry} />
-        <OrderItems />
+        {orderDetail && (
+          <div>
+            <CustomerInfo customer={orderDetail.customer.customer} />
+            <OrderInfo entry={orderDetail} />
+            <OrderItems entry={orderDetail} />
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 const ListingGridEntry = ({ entry }) => {
-  const dispatch = useDispatch();
-  const additionalEntriesDetails = useSelector(
-    (state) => state.customerRequests.additionalEntriesDetails
+  const { setCostDetail, setDetail } = useCustomersOrdersDetails();
+  const entryAdditionalDetails = useSelector((state) =>
+    state.customerRequests.additionalEntriesDetails.hasOwnProperty(entry.url_id)
+      ? state.customerRequests.additionalEntriesDetails[entry.url_id]
+      : null
   );
-  const entryAdditionalDetails = additionalEntriesDetails.hasOwnProperty(
-    entry.url_id
-  )
-    ? additionalEntriesDetails[entry.url_id]
-    : null;
 
   const offered_cryptocurrency =
     entry.payment.payment.order_payment_balance.payment_method.name;
 
   const toggleOrderDetail = () => {
-    dispatch(setDetail(entry.url_id));
+    setDetail(entry.url_id);
     const elem = document.getElementById("itemDetail");
     if (elem.classList.contains("w-0")) {
       elem.classList.remove("w-0");
@@ -262,27 +223,13 @@ const ListingGridEntry = ({ entry }) => {
     // And save to Redux State
     let cryptocurrency_rate =
       entry.payment.payment.order_payment_balance.payment_method.rate;
-    let total_price_in_fiat = parseFloat(entry.payment.payment.additional_cost);
-    for (const ordered_item of entry.order_items) {
-      total_price_in_fiat =
-        total_price_in_fiat + parseFloat(ordered_item.price);
-    }
 
-    const total_price_in_crypto = (
-      total_price_in_fiat / cryptocurrency_rate
-    ).toFixed(8);
-    total_price_in_fiat = total_price_in_fiat.toFixed(2);
-    cryptocurrency_rate = cryptocurrency_rate.toFixed(2);
-
-    dispatch(
-      modifyAdditionalEntriesDetails({
-        orderId: entry.url_id,
-        payload: {
-          total_price_in_crypto: total_price_in_crypto,
-          total_price_in_fiat: total_price_in_fiat,
-          cryptocurrency_rate: cryptocurrency_rate,
-        },
-      })
+    setCostDetail(
+      entry.url_id,
+      entry.order_items,
+      entry.payment.payment.additional_cost,
+      entry.payment.payment.order_payment_balance.payment_method.name,
+      cryptocurrency_rate
     );
   }, []);
 
@@ -352,36 +299,14 @@ const ListingGrid = ({ entries }) => {
 };
 
 export default function ListCustomersOrders() {
-  const dispatch = useDispatch();
-  const pageNumber = useSelector((state) => state.customerRequests.number);
-  const entries = useSelector((state) => state.customerRequests.entries);
-  const access_token = useSelector((state) => state.userSession.access_token);
-
-  const useEffectAsync = async () => {
-    dispatch(resetState());
-    const fetchOptions = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${access_token}`,
-      },
-    };
-    const response = await fetch(
-      `http://127.0.0.1:8000/api/list-requests/?page=${pageNumber}`,
-      fetchOptions
-    );
-
-    const json = await response.json();
-    console.log(json);
-    dispatch(setEntries(json.results));
-  };
-
-  useEffect(() => {
-    useEffectAsync();
-    return () => {
-      dispatch(resetState());
-    };
-  }, [pageNumber]);
+  const {
+    customersOrders,
+    fetchCustomersOrders,
+    pageNumber,
+    pageRange,
+    isLoading,
+    error,
+  } = useCustomersOrders();
 
   return (
     <div
@@ -407,7 +332,7 @@ export default function ListCustomersOrders() {
             Fulfill Orders and Earn Cryptocurrency!
           </p>
         </div>
-        <ListingGrid entries={entries} />
+        <ListingGrid entries={customersOrders} />
         <div className="mt-16 mb-8 w-fit flex mx-auto text-sm font-semibold gap-4 items-center">
           <button className="px-3 p-2 rounded-md">
             <img src={left} className="w-4 h-4" />
