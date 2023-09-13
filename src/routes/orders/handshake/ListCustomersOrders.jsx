@@ -13,21 +13,27 @@ import close from "@/assets/close.svg";
 
 import user from "@/assets/user_black.svg";
 import star from "@/assets/star.svg";
-import { useSelector } from "react-redux";
-import { useEffect } from "react";
 
+import { useSelector } from "react-redux";
+import { useEffect, useMemo } from "react";
 import useCustomersOrders from "@/hooks/useCustomersOrders";
 import useCustomersOrdersDetails from "@/hooks/useCustomersOrdersDetails";
+import {
+  formatDateStringMMDDYYYY,
+  getCountryNameFromCode,
+  shortenProductName,
+} from "@/utils/etc";
 
 const CustomerInfo = ({ customer }) => {
   const username = customer.username;
   const average_rating = customer.average_rating
     ? customer.average_rating.toFixed(2)
     : "0.0";
-  const registrationDate = new Date(customer.date_joined);
-  const registrationDateString = registrationDate
-    ? `${registrationDate.getMonth()}/${registrationDate.getDay()}/${registrationDate.getFullYear()}`
-    : null;
+  const userRegistrationDate = new Date(customer.date_joined);
+  const registrationDateString = useMemo(
+    () => formatDateStringMMDDYYYY(userRegistrationDate),
+    [userRegistrationDate]
+  );
   return (
     <div className="mt-8">
       <h4 className="font-semibold text-lg">Customer Info</h4>
@@ -50,6 +56,11 @@ const CustomerInfo = ({ customer }) => {
 };
 
 const OrderInfo = ({ entry }) => {
+  const orderDate = useMemo(
+    () => formatDateStringMMDDYYYY(new Date(entry.created_at)),
+    [entry]
+  );
+
   return (
     <div className="mt-8">
       <h4 className="font-semibold text-lg">Order Info</h4>
@@ -73,15 +84,13 @@ const OrderInfo = ({ entry }) => {
       </div>
       <div className="mt-5 flex items-center">
         <p className="w-1/2 text-slate-400">Created Date</p>
-        <p className="w-1/2 text-right font-medium">12/12/12</p>
+        <p className="w-1/2 text-right font-medium">{orderDate}</p>
       </div>
       <div className="mt-5 flex items-center">
         <p className="w-1/2 text-slate-400">Destination</p>
-        <p className="w-1/2 text-right font-medium">The United Kingdom</p>
-      </div>
-      <div className="mt-5 flex items-center">
-        <p className="w-1/2 text-slate-400">ID</p>
-        <p className="w-1/2 text-right font-medium">{entry.url_id}</p>
+        <p className="w-1/2 text-right font-medium">
+          {getCountryNameFromCode(entry.address.address.country)}
+        </p>
       </div>
     </div>
   );
@@ -101,7 +110,7 @@ const OrderItems = ({ entry }) => {
                 className="w-20 h-auto"
               />
               <div className="text-left flex flex-col gap-2">
-                <p className="font-light">{item.name}</p>
+                <p className="font-light">{shortenProductName(item.name)}</p>
                 <p className="font-medium">
                   {item.price} {payment.fiat_currency}
                 </p>

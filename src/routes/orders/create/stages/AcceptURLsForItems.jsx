@@ -56,6 +56,7 @@ const ItemResultWaitingBox = () => {
 
 const ItemResultDisplayBoxOptionBox = ({
   updateItemJSON,
+  optionsKey,
   options,
   itemId,
   itemDomain,
@@ -98,16 +99,17 @@ const ItemResultDisplayBoxOptionBox = ({
     }
   };
 
-  const optionName = options[0];
-  const unavailable = " text-slate-300";
   return (
     <div className="p-7 text-left">
-      <p className="font-medium text-lg">{optionName}</p>
+      <p className="font-medium text-lg">{optionsKey}</p>
       <div className="mt-6 flex flex-wrap gap-5">
-        {options.slice(1).map((elem) => {
-          const chosenOption = elem.hasOwnProperty("selectedOption")
-            ? " bg-sky-200"
-            : "";
+        {options.map((elem) => {
+          const chosenOption =
+            (elem.hasOwnProperty("selectedOption") &&
+              elem.selectedOption === true) ||
+            elem.url === itemId
+              ? " bg-sky-200"
+              : "";
 
           const unavailable = !elem.available ? " text-slate-300" : "";
           return (
@@ -134,6 +136,7 @@ const ItemResultDisplayBoxOptionBox = ({
 const ItemResultDisplayBox = ({ updateItemJSON, itemJSON }) => {
   const dispatch = useDispatch();
   const elemRef = useRef(null);
+  const optionKeys = Object.keys(itemJSON.options);
 
   useEffect(() => {
     elemRef.current.scrollIntoView({
@@ -164,11 +167,12 @@ const ItemResultDisplayBox = ({ updateItemJSON, itemJSON }) => {
         </p>
         <p className="mt-3 text-lg font-medium">${itemJSON.price}</p>
       </div>
-      {itemJSON.options.map((elem) => {
+      {optionKeys.map((key) => {
         return (
           <ItemResultDisplayBoxOptionBox
             updateItemJSON={updateItemJSON}
-            options={elem}
+            optionsKey={key}
+            options={itemJSON.options[key]}
             itemId={itemJSON.url}
             itemDomain={itemJSON.domain}
           />
