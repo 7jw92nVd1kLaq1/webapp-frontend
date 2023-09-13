@@ -43,6 +43,7 @@ const useCustomersOrders = () => {
         fetchOptions
       );
       const resp_json = await response.json();
+      console.log(resp_json);
       dispatch(setPageRange(resp_json.page_range));
       dispatch(setEntries(resp_json.results));
     } catch (e) {

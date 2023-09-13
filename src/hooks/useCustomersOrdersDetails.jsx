@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
   setDetail as reduxSetDetail,
   modifyAdditionalEntriesDetails,
 } from "@/redux/ListCustomerOrdersSlice";
+
+import { calculateTotalPriceUSD } from "@/utils/etc";
 
 const useCustomersOrdersDetails = () => {
   const dispatch = useDispatch();
@@ -34,13 +35,10 @@ const useCustomersOrdersDetails = () => {
     cryptocurrency,
     cryptoRate
   ) => {
-    let totalCostInFiat = parseFloat(additionalCost);
-    for (const requestedItem of items) {
-      totalCostInFiat = totalCostInFiat + parseFloat(requestedItem.price);
-    }
-
+    let totalCostInFiat = calculateTotalPriceUSD(items, additionalCost).toFixed(
+      2
+    );
     const totalCostInCrypto = (totalCostInFiat / cryptoRate).toFixed(8);
-    totalCostInFiat = totalCostInFiat.toFixed(2);
     cryptoRate = cryptoRate.toFixed(2);
 
     dispatch(

@@ -16,6 +16,9 @@ export const formatDateStringMMDDYYYY = (date) => {
 };
 
 export const getCountryNameFromCode = (countryCode) => {
+  if (typeof countryCode != "string") {
+    throw new Error("The first argument must be of string type.");
+  }
   const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
   return regionNames.of(countryCode);
 };

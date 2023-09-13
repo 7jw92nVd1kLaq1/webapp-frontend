@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   selectedEntry: null,
   number: 1,
+  pageRange: [],
   entries: [],
   additionalEntriesDetails: {},
 };
@@ -13,6 +14,10 @@ export const customerRequestsSlice = createSlice({
   reducers: {
     resetState: (state, action) => {
       return initialState;
+    },
+    setPageRange: (state, action) => {
+      if (!Array.isArray(action.payload)) return;
+      state.pageRange = action.payload;
     },
     setDetail: (state, action) => {
       state.selectedEntry = action.payload;
@@ -53,6 +58,7 @@ export const customerRequestsSlice = createSlice({
 
 export const {
   resetState,
+  setPageRange,
   setDetail,
   unsetDetail,
   addEntries,

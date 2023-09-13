@@ -4,7 +4,7 @@ import { renewSubscriptionToken } from "@/utils/authentication";
 import store from "../redux/store";
 
 export const createCentrifugeClientObj = (token) => {
-  const client = new Centrifuge("ws:/127.0.0.1:8001/connection/websocket", {
+  const client = new Centrifuge("ws://127.0.0.1:8001/connection/websocket", {
     token: token,
     getToken: function (ctx) {
       return renewSubscriptionToken(
