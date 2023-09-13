@@ -36,9 +36,7 @@ const useCustomersOrdersDetails = () => {
     cryptocurrency,
     cryptoRate
   ) => {
-    let totalCostInFiat = calculateTotalPriceUSD(items, additionalCost).toFixed(
-      2
-    );
+    let totalCostInFiat = calculateTotalPriceUSD(items, additionalCost);
     const totalCostInCrypto = (totalCostInFiat / cryptoRate).toFixed(8);
     cryptoRate = cryptoRate.toFixed(2);
 
@@ -47,7 +45,7 @@ const useCustomersOrdersDetails = () => {
         orderId: orderId,
         payload: {
           total_price_in_crypto: totalCostInCrypto,
-          total_price_in_fiat: totalCostInFiat,
+          total_price_in_fiat: totalCostInFiat.toFixed(2),
           cryptocurrency_rate: cryptoRate,
         },
       })
