@@ -6,6 +6,7 @@ import {
 } from "@/redux/ListCustomerOrdersSlice";
 
 import { calculateTotalPriceUSD } from "@/utils/etc";
+import { useMemo } from "react";
 
 const useCustomersOrdersDetails = () => {
   const dispatch = useDispatch();
@@ -53,7 +54,7 @@ const useCustomersOrdersDetails = () => {
     );
   };
 
-  const orderDetail = getDetail();
+  const orderDetail = useMemo(() => getDetail(), [entryId]);
   return { orderDetail, setDetail, setCostDetail };
 };
 

@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import {
-  resetState,
-  setEntries,
-  setPageRange,
-} from "@/redux/ListCustomerOrdersSlice";
+import { setEntries, setPageRange } from "@/redux/ListCustomerOrdersSlice";
 
 const useCustomersOrders = () => {
   const dispatch = useDispatch();
@@ -21,7 +17,6 @@ const useCustomersOrders = () => {
   const [error, setError] = useState("");
 
   const fetchCustomersOrders = async () => {
-    dispatch(resetState());
     setIsLoading(true);
 
     if (!username) {
