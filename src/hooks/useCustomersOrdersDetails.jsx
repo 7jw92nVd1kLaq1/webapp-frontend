@@ -6,7 +6,7 @@ import {
 } from "@/redux/ListCustomerOrdersSlice";
 
 import { calculateTotalPriceUSD } from "@/utils/etc";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const useCustomersOrdersDetails = () => {
   const dispatch = useDispatch();
@@ -15,6 +15,8 @@ const useCustomersOrdersDetails = () => {
     (state) => state.customerRequests.additionalEntriesDetails
   );
   const entryId = useSelector((state) => state.customerRequests.selectedEntry);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const getDetail = () => {
     if (!entryId) return null;
@@ -27,7 +29,9 @@ const useCustomersOrdersDetails = () => {
     return selectedOrderDetails;
   };
   const setDetail = (orderId) => {
+    setIsLoading(true);
     dispatch(reduxSetDetail(orderId));
+    setIsLoading(false);
   };
   const setCostDetail = (
     orderId,
@@ -53,7 +57,7 @@ const useCustomersOrdersDetails = () => {
   };
 
   const orderDetail = useMemo(() => getDetail(), [entryId]);
-  return { orderDetail, setDetail, setCostDetail };
+  return { orderDetail, setDetail, setCostDetail, isLoading };
 };
 
 export default useCustomersOrdersDetails;

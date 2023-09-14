@@ -49,7 +49,11 @@ export const customerRequestsSlice = createSlice({
         },
       };
     },
-    changeNumber: (state, action) => {
+
+    resetAdditionalEntriesDetails: (state, action) => {
+      state.additionalEntriesDetails = {};
+    },
+    setPageNumber: (state, action) => {
       if (typeof action.payload != "number") return;
       state.number = action.payload;
     },
@@ -66,6 +70,7 @@ export const {
   setEntries,
   unsetEntries,
   modifyAdditionalEntriesDetails,
-  changeNumber,
+  resetAdditionalEntriesDetails,
+  setPageNumber,
 } = customerRequestsSlice.actions;
 export default customerRequestsSlice.reducer;
