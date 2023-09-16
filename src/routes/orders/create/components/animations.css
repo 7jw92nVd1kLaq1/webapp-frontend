@@ -1,0 +1,10 @@
+@keyframes shrinkExpand {
+	0% {padding-top: 0.5rem; padding-bottom: 0.5rem; padding-left: 0.5rem; padding-right: 0.5rem;}
+	25% {padding-top: 0.125rem; padding-bottom: 0.125rem; padding-left: 0.125rem; padding-right: 0.125rem;}
+	50% {padding-top: 0.5rem; padding-bottom: 0.5rem; padding-left: 0.5rem; padding-right: 0.5rem;}
+}
+
+@keyframes spinning {
+	0% {transform: rotate(0deg);}
+	100% {transform: rotate(360deg);}
+}

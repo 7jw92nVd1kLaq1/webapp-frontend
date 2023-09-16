@@ -68,9 +68,40 @@ export default function Login() {
     navigate("/");
   };
 
+  const handleSubmitSocialAsync = async (e) => {
+    const fetchOptions = {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": csrfToken,
+        "Content-Type": "application/json",
+        Host: "127.0.0.1:8000",
+        Referer: "127.0.0.1:8000",
+      },
+      credentials: "include",
+    };
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/accounts/github/login/",
+      fetchOptions
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      displayLoginError(data);
+      return;
+    }
+
+    navigate("/");
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     handleSubmitAsync(e);
+  };
+
+  const handleSubmitSocial = (e) => {
+    e.preventDefault();
+    handleSubmitSocialAsync(e);
   };
 
   useEffect(() => {
@@ -125,7 +156,6 @@ export default function Login() {
             <button className="mt-8 rounded-lg bg-blue-800 shadow-lg p-3">
               <Link to="/register">Register</Link>
             </button>
-
             <button className="mt-8 rounded-lg bg-blue-800 shadow-lg p-3">
               <a href="http://127.0.0.1:8000/accounts/github/login/">GitHub</a>
             </button>
