@@ -62,6 +62,8 @@ export default function AcceptURLsForItems() {
   const subObj = useRef(null);
   const centrifugeObj = useRef(null);
 
+  const currentElement = useRef();
+
   const dispatch = useDispatch();
   const items = useSelector((state) => state.shoppingBasket.value);
   const access_token = useSelector((state) => state.userSession.access_token);
@@ -101,6 +103,11 @@ export default function AcceptURLsForItems() {
 
   useEffect(() => {
     useEffectAsync();
+    currentElement.current.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
 
     return () => {
       if (subObj.current != null && centrifugeObj.current != null) {
@@ -111,7 +118,10 @@ export default function AcceptURLsForItems() {
   }, []);
 
   return (
-    <div className="text-center text-black lg:w-11/12 w-full mx-auto">
+    <div
+      className="text-center text-black lg:w-11/12 w-full mx-auto"
+      ref={currentElement}
+    >
       <h1 className="font-bold text-3xl">Provide URLs of Items</h1>
       <p className="text-lg font-semibold text-gray-500 mt-5">
         Provide links to items that you would like to purchase

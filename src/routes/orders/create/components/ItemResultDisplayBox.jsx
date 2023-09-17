@@ -19,7 +19,7 @@ const ItemResultDisplayBox = ({ requestItemJSON, itemJSON }) => {
       block: "nearest",
       inline: "center",
     });
-  }, []);
+  }, [itemJSON]);
 
   return (
     <div

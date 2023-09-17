@@ -130,6 +130,8 @@ export default function ProcessOrder() {
   const subToken = useRef();
   const subChannelObj = useRef();
 
+  const currentElement = useRef();
+
   const orderInfo = useSelector((state) => state.shoppingBasket);
   const access_token = useSelector((state) => state.userSession.access_token);
   const username = useSelector((state) => state.userSession.username);
@@ -187,6 +189,11 @@ export default function ProcessOrder() {
 
   useEffect(() => {
     useEffectAsync();
+    currentElement.current.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
     return () => {
       subChannelObj.current.unsubscribe();
       centrifugeClientObj.current.disconnect();
@@ -194,7 +201,10 @@ export default function ProcessOrder() {
   }, []);
 
   return (
-    <div className="text-center text-black lg:w-11/12 w-full mx-auto">
+    <div
+      className="text-center text-black lg:w-11/12 w-full mx-auto"
+      ref={currentElement}
+    >
       <h1 className="font-bold text-3xl">Generating Order</h1>
       <div className="w-full md:w-5/6 mt-20 md:flex md:flex-col items-center justify-center mx-auto gap-6 ">
         <StatusCircle processStatus={processStatus} />

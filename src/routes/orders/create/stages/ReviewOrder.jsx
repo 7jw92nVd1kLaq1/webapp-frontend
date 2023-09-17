@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ItemBasketDisplayBox } from "../components/ItemBasketDisplayBox";
 
 import { increment, decrement } from "@/redux/orderCreationStepsSlice";
+import { useEffect, useRef } from "react";
 
 const ShippingAddressBox = () => {
   const shippingAddress = useSelector(
@@ -48,9 +49,21 @@ const AdditionaRequestBox = () => {
 };
 
 export default function ReviewOrder() {
+  const currentElement = useRef();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    currentElement.current.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, []);
   return (
-    <div className="text-center text-black lg:w-11/12 w-full mx-auto">
+    <div
+      className="text-center text-black lg:w-11/12 w-full mx-auto"
+      ref={currentElement}
+    >
       <h1 className="font-bold text-3xl">Review Order</h1>
       <p className="text-lg font-semibold text-gray-500 mt-5">
         Check the information you are going to submit for the final time before

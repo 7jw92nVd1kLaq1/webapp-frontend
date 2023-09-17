@@ -6,7 +6,7 @@ import {
 } from "@/redux/shoppingBasketSlice";
 import { increment, decrement } from "@/redux/orderCreationStepsSlice";
 import { CountryDropdown } from "react-country-region-selector";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const AddShippingAddressFormBox = (props) => {
   const dispatch = useDispatch();
@@ -112,6 +112,7 @@ const AddShippingAddressFormBox = (props) => {
 };
 
 export default function ProvideShippingAddress() {
+  const currentElement = useRef();
   const dispatch = useDispatch();
   const addr = useSelector((state) => state.shoppingBasket.shippingAddress);
   const [error, setError] = useState({});
@@ -131,8 +132,19 @@ export default function ProvideShippingAddress() {
     } else dispatch(increment());
   };
 
+  useEffect(() => {
+    currentElement.current.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, []);
+
   return (
-    <div className="text-center text-black lg:w-11/12 w-full mx-auto">
+    <div
+      className="text-center text-black lg:w-11/12 w-full mx-auto"
+      ref={currentElement}
+    >
       <h1 className="font-bold text-3xl">Provide Shipping Address</h1>
       <p className="text-lg font-semibold text-gray-500 mt-5">
         Provide a shipping address to which items will be delivered

@@ -5,6 +5,7 @@ import {
   modifyAdditionalRequest,
 } from "@/redux/shoppingBasketSlice";
 import { increment, decrement } from "@/redux/orderCreationStepsSlice";
+import { useEffect, useRef } from "react";
 
 const AddCostFormBox = () => {
   const dispatch = useDispatch();
@@ -80,6 +81,7 @@ const AddReqFormBox = () => {
 };
 
 export default function ProvideAddCostAddReq() {
+  const currentElement = useRef();
   const dispatch = useDispatch();
   const handlePrevClick = () => {
     dispatch(decrement());
@@ -87,8 +89,19 @@ export default function ProvideAddCostAddReq() {
   const handleNextClick = () => {
     dispatch(increment());
   };
+
+  useEffect(() => {
+    currentElement.current.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, []);
   return (
-    <div className="text-center text-black lg:w-11/12 w-full mx-auto">
+    <div
+      className="text-center text-black lg:w-11/12 w-full mx-auto"
+      ref={currentElement}
+    >
       <h1 className="font-bold text-3xl">Provide Extra Information</h1>
       <p className="text-lg font-semibold text-gray-500 mt-5">
         Provide your personal request and extra cost of an order, including
