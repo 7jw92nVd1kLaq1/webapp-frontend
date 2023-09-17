@@ -126,6 +126,12 @@ const UserDropDownButton = ({ username }) => {
               <img src={help} className="w-6 h-6" />
               <span>Help</span>
             </button>
+            <button className="flex items-center gap-4 text-sm">
+              <img src={earn} className="w-6 h-6" />
+              <Link to={"/logout"}>
+                <span>Logout</span>
+              </Link>
+            </button>
           </div>
         </div>
       </div>

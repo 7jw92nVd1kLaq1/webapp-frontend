@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link, useLoaderData, useNavigate } from "react-router-dom";
 
 import "@/routes/root.css";
 import { getCSRFToken } from "@/utils/cookie";
 
 export default function Login() {
+  const data = useLoaderData();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [csrfToken, setCsrfToken] = useState("");
+  const csrfToken = useRef("");
 
   const handleUsernameChange = ({ target }) => {
     setUsername(target.value);
@@ -33,7 +34,7 @@ export default function Login() {
 
   const useEffectAsync = async () => {
     const csrf = await getCSRFToken();
-    setCsrfToken(csrf);
+    csrfToken.current = csrf;
   };
 
   const handleSubmitAsync = async (e) => {
@@ -44,7 +45,7 @@ export default function Login() {
     const fetchOptions = {
       method: "POST",
       headers: {
-        "X-CSRFToken": csrfToken,
+        "X-CSRFToken": csrfToken.current,
         "Content-Type": "application/json",
       },
       body: formDataObjectString,
@@ -68,49 +69,26 @@ export default function Login() {
     navigate("/");
   };
 
-  const handleSubmitSocialAsync = async (e) => {
-    const fetchOptions = {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": csrfToken,
-        "Content-Type": "application/json",
-        Host: "127.0.0.1:8000",
-        Referer: "127.0.0.1:8000",
-      },
-      credentials: "include",
-    };
-
-    const response = await fetch(
-      "http://127.0.0.1:8000/accounts/github/login/",
-      fetchOptions
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      displayLoginError(data);
-      return;
-    }
-
-    navigate("/");
-  };
   const handleSubmit = (e) => {
     e.preventDefault();
     handleSubmitAsync(e);
   };
 
-  const handleSubmitSocial = (e) => {
-    e.preventDefault();
-    handleSubmitSocialAsync(e);
-  };
-
   useEffect(() => {
+    if (
+      data &&
+      data.hasOwnProperty("redirectFrom") &&
+      data.redirectFrom === "logOut"
+    ) {
+      console.log(data);
+      window.location.reload(true);
+    }
     useEffectAsync();
   }, []);
 
   return (
     <div
-      className="flex flex-col justify-center items-center w-full bg-gray-900 min-h-screen opacity-100 text-white z-10 shadow-xl"
+      className="flex flex-col justify-center items-center w-full bg-white min-h-screen opacity-100 text-white z-10 shadow-xl"
       id="login"
     >
       <div className="bg-gray-800 lg:w-1/3 md:w-2/3 w-11/12 p-10 rounded-lg shadow-xl">

@@ -41,7 +41,6 @@ export const checkIfUser = async () => {
 };
 
 export const checkIfLoggedIn = async () => {
-  console.log("YESSS");
   const doesCookieExist = await validateCookie();
   if (doesCookieExist) {
     return redirect("/");
@@ -51,7 +50,13 @@ export const checkIfLoggedIn = async () => {
 export const logOut = async () => {
   const isLoggedIn = await validateCookie();
   if (isLoggedIn) await logoutUser();
-  return redirect("/login");
+  const data = { redirectFrom: "logOut" };
+  return new Response(JSON.stringify(data), {
+    status: 302,
+    headers: {
+      Location: "/login",
+    },
+  });
 };
 
 export const getSubscriptionToken = async (channel) => {
