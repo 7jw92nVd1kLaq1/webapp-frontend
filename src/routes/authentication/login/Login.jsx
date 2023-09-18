@@ -91,7 +91,7 @@ export default function Login() {
       className="flex flex-col justify-center items-center w-full bg-white min-h-screen opacity-100 text-white z-10 shadow-xl"
       id="login"
     >
-      <div className="bg-gray-800 lg:w-1/3 md:w-2/3 w-11/12 p-10 rounded-lg shadow-xl">
+      <div className="bg- lg:w-1/3 md:w-2/3 w-11/12 p-10 rounded-lg shadow-xl">
         <p className="text-xl font-light">Login</p>
         <div id="error-box"></div>
         <form

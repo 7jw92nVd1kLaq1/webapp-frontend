@@ -1,15 +1,18 @@
 import close from "@/assets/close.svg";
 import useCustomersOrdersDetails from "@/hooks/useCustomersOrdersDetails";
+import { useRef } from "react";
 
 import CustomerInfo from "./CustomerInfo";
+import OrderDetailSubmitForm from "./OrderDetailSubmitForm";
 import OrderInfo from "./OrderInfo";
 import OrderItems from "./OrderItems";
 
 const OrderDetail = () => {
   const { orderDetail } = useCustomersOrdersDetails();
+  const currentElement = useRef();
 
   const toggleOrderDetail = () => {
-    const elem = document.getElementById("itemDetail");
+    const elem = currentElement.current;
     if (elem.classList.contains("w-0")) {
       elem.classList.remove("w-0");
       elem.classList.add("lg:w-1/3");
@@ -26,6 +29,7 @@ const OrderDetail = () => {
     <div
       className="fixed top-0 bottom-0 right-0 h-full bg-white text-black w-0 shadow-lg overflow-y-auto"
       id="itemDetail"
+      ref={currentElement}
     >
       <div className="p-4 px-8 invisible w-0">
         <p className="font-semibold text-lg">BitShop</p>
@@ -39,6 +43,7 @@ const OrderDetail = () => {
         </h3>
         {orderDetail && (
           <div>
+            <OrderDetailSubmitForm orderID={orderDetail.url_id} />
             <CustomerInfo customer={orderDetail.customer.customer} />
             <OrderInfo entry={orderDetail} />
             <OrderItems entry={orderDetail} />
