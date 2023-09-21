@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
+import backArrow from "@/assets/back_arrow.svg";
 import OrderGeneralInfo from "./components/OrderGeneralInfo";
 import OrderPaymentInfo from "./components/OrderPaymentInfo";
 import OrderItemList from "./components/OrderItemList";
@@ -44,50 +45,18 @@ export default function ViewOrderAsCustomer() {
   if (Object.keys(order).length < 1) return <div></div>;
 
   return (
-    <div className="p-16">
-      <p className="font-semibold text-xl">Order - {orderId}</p>
-      <div className="mt-12 lg:flex gap-3 items-start">
-        <div className="lg:w-3/5 flex flex-col gap-3">
-          <div className="bg-white rounded-md p-6 px-6">
-            <div className="flex items-center gap-1">
-              <div className="p-2 rounded-full bg-green-400"></div>
-              <div className="p-1 rounded-full bg-green-600 grow"></div>
-              <div className="p-1 rounded-full bg-sky-600 grow"></div>
-              <div className="p-1 rounded-full bg-sky-600 grow"></div>
-              <div className="p-1 rounded-full bg-sky-600 grow"></div>
-              <div className="p-2 rounded-full bg-sky-400"></div>
-            </div>
-            <p className="text-center text-slate-600 font-medium mt-3">
-              Deposit
-            </p>
-          </div>
-          {order.status === 1 && <EscrowReleased />}
-          {
-            <OrderItemList
-              items={order.order_items}
-              additionalCost={order.payment.payment.additional_cost}
-            />
-          }
+    <div className="px-16 py-12 bg-white flex flex-col divide-y divide-slate-300">
+      <div className="flex justify-between items-center pb-4">
+        <div className="flex gap-2 items-center">
+          <img src={backArrow} className="block w-8 h-8" />
+          <button className="block">GO BACK</button>
         </div>
-        <div className="lg:w-2/5 lg:mt-0 mt-4">
-          <div className="rounded-md bg-white p-8">
-            <div className="flex items-center gap-2">
-              <p className="font-medium">General Info</p>
-              <hr className="border-t border-slate-400 grow" />
-            </div>
-            <OrderGeneralInfo
-              orderId={order.url_id}
-              created_date={order.created_at}
-              personal_req={order.additional_request}
-            />
-            <div className="flex items-center gap-2 mt-10">
-              <p className="font-medium">Payment Info</p>
-              <hr className="border-t border-slate-400 grow" />
-            </div>
-            {<OrderPaymentInfo order={order} />}
-          </div>
+        <div className="flex gap-2">
+          <span className="text-stone-500">Order ID:</span>
+          <p className="">{orderId}</p>
         </div>
       </div>
+      <div className="flex justify-between items-center py-10"></div>
     </div>
   );
 }
