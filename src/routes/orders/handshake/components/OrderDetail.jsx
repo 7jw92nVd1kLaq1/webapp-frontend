@@ -8,7 +8,7 @@ import OrderInfo from "./OrderInfo";
 import OrderItems from "./OrderItems";
 
 const OrderDetail = () => {
-  const { orderDetail } = useCustomersOrdersDetails();
+  const { orderDetail, setDetail } = useCustomersOrdersDetails();
   const currentElement = useRef();
 
   const toggleOrderDetail = () => {
@@ -23,6 +23,7 @@ const OrderDetail = () => {
       elem.classList.remove("lg:w-1/3");
       elem.classList.remove("md:w-1/2");
       elem.classList.remove("w-full");
+      setDetail(null);
     }
   };
   return (

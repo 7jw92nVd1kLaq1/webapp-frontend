@@ -8,7 +8,7 @@ const OrderDetailSubmitForm = ({ orderID }) => {
   const form = useRef();
   const csrfToken = useRef();
   const access_token = useSelector((state) => state.userSession.access_token);
-  const [rate, setRate] = useState(0);
+  const [rate, setRate] = useState("0");
   const [result, setResult] = useState("");
 
   const handleRateChange = ({ target }) => {
@@ -32,6 +32,7 @@ const OrderDetailSubmitForm = ({ orderID }) => {
   };
 
   const handleSubmitAsync = async () => {
+    if (typeof rate != "string") setRate("0");
     const formDataObjectString = JSON.stringify({
       rate: rate,
       order_id: orderID,
@@ -49,6 +50,7 @@ const OrderDetailSubmitForm = ({ orderID }) => {
 
     const url = `${backendURL}/api/sign-user-up-order/`;
     const resp = await fetch(url, fetchOptions);
+
     if (resp.status == 201) setResult("Success");
     else if (resp.status == 400) setResult("Failure");
     else setResult("Unknown");
