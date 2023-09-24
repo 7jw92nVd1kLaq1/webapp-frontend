@@ -25,80 +25,44 @@ import EscrowReleased from "./components/EscrowReleased";
 
 import { useParams } from "react-router-dom";
 
+const OrderProgressIndicatorStage = ({ image, name }) => {
+  return (
+    <div className="relative">
+      <div className="w-20 h-20 rounded-full border border-black">
+        <img
+          src={image}
+          className="w-8 w-8 absolute"
+          style={{
+            transform: "translate(-50%, -50%)",
+            top: "50%",
+            left: "50%",
+          }}
+        />
+      </div>
+      <div
+        className="absolute top-[110%] left-[50%] w-32"
+        style={{ transform: "translate(-50%)" }}
+      >
+        <p className="font-medium w-full text-center">{name}</p>
+      </div>
+    </div>
+  );
+};
+
 const OrderProgressIndicator = () => {
   return (
-    <div className="flex justify-center items-center pb-16">
-      <div className="w-20 h-20 rounded-full border border-black relative">
-        <img
-          src={addIntermediary}
-          className="w-8 w-8 absolute"
-          style={{
-            transform: "translate(-50%, -50%)",
-            top: "50%",
-            left: "50%",
-          }}
-        />
-      </div>
+    <div className="flex justify-center items-center flex-wrap pb-16 text-[16px]">
+      <OrderProgressIndicatorStage image={addIntermediary} name={"Add User"} />
       <hr className="w-10 border-black" />
-      <div className="w-20 h-20 rounded-full border border-black relative">
-        <img
-          src={deposit}
-          className="w-8 w-8 absolute"
-          style={{
-            transform: "translate(-50%, -50%)",
-            top: "50%",
-            left: "50%",
-          }}
-        />
-      </div>
+      <OrderProgressIndicatorStage image={deposit} name={"Deposit"} />
       <hr className="w-10 border-black" />
-      <div className="w-20 h-20 rounded-full border border-black relative">
-        <img
-          src={waiting}
-          className="w-8 w-8 absolute"
-          style={{
-            transform: "translate(-50%, -50%)",
-            top: "50%",
-            left: "50%",
-          }}
-        />
-      </div>
+      <OrderProgressIndicatorStage image={waiting} name={"Waiting"} />
       <hr className="w-10 border-black" />
-      <div className="w-20 h-20 rounded-full border border-black relative">
-        <img
-          src={placed}
-          className="w-8 w-8 absolute"
-          style={{
-            transform: "translate(-50%, -50%)",
-            top: "50%",
-            left: "50%",
-          }}
-        />
-      </div>
+      <OrderProgressIndicatorStage image={placed} name={"Order Placed"} />
       <hr className="w-10 border-black" />
-      <div className="w-20 h-20 rounded-full border border-black relative">
-        <img
-          src={shipping}
-          className="w-8 w-8 absolute"
-          style={{
-            transform: "translate(-50%, -50%)",
-            top: "50%",
-            left: "50%",
-          }}
-        />
-      </div>
+      <OrderProgressIndicatorStage image={shipping} name={"Shipped"} />
       <hr className="w-10 border-black" />
-      <div className="w-20 h-20 rounded-full border border-black relative">
-        <img
-          src={done}
-          className="w-8 w-8 absolute"
-          style={{
-            transform: "translate(-50%, -50%)",
-            top: "50%",
-            left: "50%",
-          }}
-        />
-      </div>
+      <OrderProgressIndicatorStage image={done} name={"Complete"} />
     </div>
   );
 };
@@ -186,18 +150,15 @@ const IntermediaryEntryBoxUserInfo = ({ username, reference }) => {
     >
       <p className="text-[18px] font-medium">{username}</p>
       <div className="flex gap-1 items-center mt-1">
-        <img src={star} className="block w-[18px] h-[18px]" />
-        <div className="text-[14px] flex gap-1 items-end text-stone-600">
+        <img src={star} className="block w-[20px] h-[20px]" />
+        <div className="text-[16px] flex gap-1 items-end text-stone-600">
           <p>5.00</p>
           <p>/</p>
           <p>5.00</p>
           <p className="text-black font-medium">(168)</p>
         </div>
       </div>
-      <p className="text-[14px] mt-1">Joined 2 months ago</p>
-      <div className="text-[16px] mt-5 font-light">
-        <p>This user has an outstanding reputation!</p>
-      </div>
+      <p className="text-[16px] mt-1">Joined 2 months ago</p>
     </div>
   );
 };
@@ -244,7 +205,7 @@ const IntermediaryEntryBox = ({ username, rate, chatToggleCallback }) => {
           <p className="font-semibold">BTC</p>
         </div>
       </div>
-      <div className="w-full mt-14 flex gap-3">
+      <div className="w-full mt-14 flex gap-3 text-[16px]">
         <button
           className="block bg-green-600 text-white py-5 px-auto grow rounded-lg"
           onClick={chatToggleCallback}
@@ -311,7 +272,7 @@ export default function ViewOrderAsCustomer() {
         closeCallback={toggleOrderDetail}
       />
       <div className="px-16 py-12 bg-white flex flex-col divide-y divide-slate-300 z-10">
-        <div className="flex justify-between items-center pb-4">
+        <div className="flex justify-between items-center pb-4 text-[16px]">
           <div className="flex gap-2 items-center">
             <img src={backArrow} className="block w-8 h-8" />
             <button className="block">GO BACK</button>
@@ -363,8 +324,8 @@ export default function ViewOrderAsCustomer() {
                   It's time to choose an intermediary for your order!
                 </p>
               </div>
-              <div className="">
-                <p className="text-lg my-10 font-medium">Choose Intermediary</p>
+              <div className="text-[20px]">
+                <p className="my-10 font-medium">Choose Intermediary</p>
                 <div className="flex items-start flex-wrap gap-4">
                   <IntermediaryEntryBox
                     username={"Alex0945"}
