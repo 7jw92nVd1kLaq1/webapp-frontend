@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 
 import notification from "@/assets/notification.svg";
-
+import star from "@/assets/star.svg";
 import backArrow from "@/assets/back_arrow.svg";
 import confetti from "@/assets/confetti.png";
 import addIntermediary from "@/assets/add_intermediary.svg";
@@ -11,6 +11,7 @@ import waiting from "@/assets/waiting.svg";
 import placed from "@/assets/order_placed.svg";
 import shipping from "@/assets/shipping.svg";
 import done from "@/assets/done.svg";
+import send from "@/assets/send.svg";
 import OrderGeneralInfo from "./components/OrderGeneralInfo";
 import OrderPaymentInfo from "./components/OrderPaymentInfo";
 import OrderItemList from "./components/OrderItemList";
@@ -126,7 +127,7 @@ const IntermediaryOfferChat = ({ reference, closeCallback }) => {
   return (
     <div
       ref={reference}
-      className="fixed top-0 bottom-0 right-0 h-screen bg-white text-black w-0 shadow-lg overflow-y-auto z-20 divide-y divide-slate-300"
+      className="fixed flex flex-col top-0 bottom-0 right-0 h-screen bg-white text-black w-0 shadow-lg overflow-y-auto z-20 divide-y divide-slate-300"
     >
       <div className="p-4 bg-red-600">
         <img src={notification} className="block w-7 h-7" />
@@ -139,30 +140,109 @@ const IntermediaryOfferChat = ({ reference, closeCallback }) => {
           Chat with <span className="text-xl font-bold">Username</span>
         </p>
       </div>
-      <div className="px-7 py-8 flex flex-col w-full gap-3">
+      <div className="px-7 py-8 flex flex-col w-full gap-3 grow overflow-y-auto text-[16px]">
         <UserMessage message={"Hey, this is really nice!"} />
         <IntermediaryMessage
           message={
             "I totally agree with you. It's going to be a great opportunity for both of us!"
           }
         />
+        <IntermediaryMessage
+          message={
+            "I totally agree with you. It's going to be a great opportunity for both of us!"
+          }
+        />
+        <IntermediaryMessage
+          message={
+            "I totally agree with you. It's going to be a great opportunity for both of us!"
+          }
+        />
+        <IntermediaryMessage
+          message={
+            "I totally agree with you. It's going to be a great opportunity for both of us!"
+          }
+        />
+      </div>
+      <div className="h-24 flex p-2 px-7 gap-3 items-center">
+        <input
+          type="text"
+          className="p-2 grow border-0"
+          placeholder="Type Your Message"
+        />
+        <button className="flex items-center justify-center p-3 bg-black text-white rounded-xl shadow-md gap-3">
+          <img src={send} className="w-4 h-4" />
+          Send
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const IntermediaryEntryBoxUserInfo = ({ username, reference }) => {
+  return (
+    <div
+      className="absolute shadow-md rounded-xl p-5 bg-white left-0 top-[99%] hidden"
+      ref={reference}
+    >
+      <p className="text-[18px] font-medium">{username}</p>
+      <div className="flex gap-1 items-center mt-1">
+        <img src={star} className="block w-[18px] h-[18px]" />
+        <div className="text-[14px] flex gap-1 items-end text-stone-600">
+          <p>5.00</p>
+          <p>/</p>
+          <p>5.00</p>
+          <p className="text-black font-medium">(168)</p>
+        </div>
+      </div>
+      <p className="text-[14px] mt-1">Joined 2 months ago</p>
+      <div className="text-[16px] mt-5 font-light">
+        <p>This user has an outstanding reputation!</p>
       </div>
     </div>
   );
 };
 
 const IntermediaryEntryBox = ({ username, rate, chatToggleCallback }) => {
+  const usernameElement = useRef(null);
+  const userInfo = useRef();
+
+  const displayUserInfo = () => {
+    userInfo.current.classList.remove("hidden");
+  };
+  const hideUserInfo = () => {
+    userInfo.current.classList.add("hidden");
+  };
+
+  useEffect(() => {
+    const usernameElementCopy = usernameElement.current;
+    usernameElementCopy.addEventListener("mouseover", displayUserInfo);
+    usernameElementCopy.addEventListener("mouseout", hideUserInfo);
+
+    return () => {
+      usernameElementCopy.removeEventListener("mouseover", displayUserInfo);
+      usernameElementCopy.removeEventListener("mouseout", hideUserInfo);
+    };
+  }, []);
+
   return (
     <div className="p-10 rounded-lg shadow-md w-96 bg-stone-100">
       <div className="text-[28px]">
-        <p className="font-bold">{username}</p>
+        <div className="relative w-full" ref={usernameElement}>
+          <p className="font-semibold">{username}</p>
+          <IntermediaryEntryBoxUserInfo
+            username={username}
+            reference={userInfo}
+          />
+        </div>
         <p className="font-medium">Offered you</p>
         <p className="font-semibold">{rate}% off!</p>
       </div>
       <div className="mt-14 text-[24px]">
         <p className="font-medium">You Pay</p>
-        <p className="font-semibold">123123.00</p>
-        <p className="font-semibold">USD!</p>
+        <div className="font-semibold">
+          <p>0.20000000</p>
+          <p className="font-semibold">BTC</p>
+        </div>
       </div>
       <div className="w-full mt-14 flex gap-3">
         <button
@@ -276,8 +356,10 @@ export default function ViewOrderAsCustomer() {
                     />
                   </div>
                 </div>
-                <p className="mt-12 text-xl font-bold">Assign Intermediary</p>
-                <p className="mt-2 mb-20">
+                <p className="mt-16 text-[24px] font-semibold">
+                  Assign Intermediary
+                </p>
+                <p className="mt-2 mb-20 text-[16px] text-center">
                   It's time to choose an intermediary for your order!
                 </p>
               </div>
