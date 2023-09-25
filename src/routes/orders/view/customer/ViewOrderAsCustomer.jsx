@@ -187,7 +187,7 @@ const IntermediaryEntryBox = ({ username, rate, chatToggleCallback }) => {
   }, []);
 
   return (
-    <div className="p-10 rounded-lg shadow-md w-96 bg-stone-100">
+    <div className="p-10 rounded-2xl bg-stone-100 w-96 border border-stone-300">
       <div className="text-[24px]">
         <div className="relative w-full" ref={usernameElement}>
           <p className="font-semibold">{username}</p>
@@ -272,7 +272,7 @@ export default function ViewOrderAsCustomer() {
         reference={intermediaryChatElement}
         closeCallback={toggleOrderDetail}
       />
-      <div className="px-16 py-12 bg-white flex flex-col divide-y divide-slate-300 z-10">
+      <div className="px-12 lg:px-16 py-12 bg-white flex flex-col divide-y divide-slate-300 z-10">
         <div className="flex justify-between items-center pb-4 text-[16px]">
           <div className="flex gap-2 items-center">
             <img src={backArrow} className="block w-8 h-8" />
@@ -341,11 +341,48 @@ export default function ViewOrderAsCustomer() {
               </div>
             </div>
           </div>
-          <div className="xl:w-1/4 lg:flex items-start gap-4 xl:block xl:pl-7">
+          <div className="xl:w-1/4 lg:flex items-start gap-6 xl:block xl:pl-7">
             <div className="text-[16px] lg:w-1/2 xl:w-full gap-2 items-start mt-7 xl:mt-4">
               <p className="text-stone-600">ORDER INFO</p>
+              <div className="mt-7">
+                <div className="shadow-md rounded-2xl border border-slate-300 p-4">
+                  <div>
+                    <p className="text-stone-600">Order ID</p>
+                    <p className="mt-2">{orderId}</p>
+                  </div>
+                  <div className="mt-7">
+                    <p className="text-stone-600">Cryptocurrency</p>
+                    <p className="mt-2">Bitcoin (BTC)</p>
+                  </div>
+                  <div className="mt-7">
+                    <p className="text-stone-600">Created Date</p>
+                    <p className="mt-2">10/21/95</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-7 divide-y divide-slate-300">
+                <div className="shadow-md rounded-2xl border border-slate-300 p-4">
+                  <p className="text-stone-600">Additional Request</p>
+                  <p className="mt-3">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut
+                    imperdiet vitae neque nec egestas. Phasellus auctor est dui,
+                    non pharetra quam vulputate quis.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-7 divide-y divide-slate-300">
+                <div className="shadow-md rounded-2xl border border-slate-300 p-4">
+                  <p className="text-stone-600">Shipping Address</p>
+                  <div className="mt-3">
+                    <p>123 James Road</p>
+                    <p>Jamesville</p>
+                    <p>Pennsylvania</p>
+                    <p>USA</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="text-[16px] lg:w-1/2 xl:w-full gap-2 items-start mt-7 xl:mt-4">
+            <div className="text-[16px] mt-12 lg:mt-7 xl:mt-12 lg:w-1/2 xl:w-full gap-2 items-start ">
               <p className="text-stone-600">ORDER ITEMS</p>
               <div className="divide-y divide-slate-300 border-t border-b border-slate-300 mt-7">
                 <div className="p-4 flex justify-between items-center w-full">
