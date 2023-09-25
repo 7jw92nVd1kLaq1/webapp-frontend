@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 
+import tshirt from "@/assets/reset.jpeg";
 import notification from "@/assets/notification.svg";
 import star from "@/assets/star.svg";
 import backArrow from "@/assets/back_arrow.svg";
@@ -187,7 +188,7 @@ const IntermediaryEntryBox = ({ username, rate, chatToggleCallback }) => {
 
   return (
     <div className="p-10 rounded-lg shadow-md w-96 bg-stone-100">
-      <div className="text-[28px]">
+      <div className="text-[24px]">
         <div className="relative w-full" ref={usernameElement}>
           <p className="font-semibold">{username}</p>
           <IntermediaryEntryBoxUserInfo
@@ -282,7 +283,7 @@ export default function ViewOrderAsCustomer() {
             <p className="">{orderId}</p>
           </div>
         </div>
-        <div className="xl:flex justify-between items-center py-10 xl:divide-x divide-slate-300">
+        <div className="xl:flex justify-between items-start py-10 xl:divide-x divide-y xl:divide-y-0 divide-slate-300">
           <div className="xl:w-3/4 xl:pr-10 divide-y divide-slate-300">
             <OrderProgressIndicator />
             <div className="divide-y divide-slate-300">
@@ -324,19 +325,93 @@ export default function ViewOrderAsCustomer() {
                   It's time to choose an intermediary for your order!
                 </p>
               </div>
-              <div className="text-[20px]">
-                <p className="my-10 font-medium">Choose Intermediary</p>
-                <div className="flex items-start flex-wrap gap-4">
+              <div className="text-[20px] py-10">
+                <div className="flex items-start flex-wrap gap-4 my-10">
                   <IntermediaryEntryBox
                     username={"Alex0945"}
                     rate={30}
+                    chatToggleCallback={toggleOrderDetail}
+                  />
+                  <IntermediaryEntryBox
+                    username={"Alex0946"}
+                    rate={20}
                     chatToggleCallback={toggleOrderDetail}
                   />
                 </div>
               </div>
             </div>
           </div>
-          <div className="xl:w-1/4 pt-10 pl-10"></div>
+          <div className="xl:w-1/4 lg:flex items-start gap-4 xl:block xl:pl-7">
+            <div className="text-[16px] lg:w-1/2 xl:w-full gap-2 items-start mt-7 xl:mt-4">
+              <p className="text-stone-600">ORDER INFO</p>
+            </div>
+            <div className="text-[16px] lg:w-1/2 xl:w-full gap-2 items-start mt-7 xl:mt-4">
+              <p className="text-stone-600">ORDER ITEMS</p>
+              <div className="divide-y divide-slate-300 border-t border-b border-slate-300 mt-7">
+                <div className="p-4 flex justify-between items-center w-full">
+                  <div className="flex gap-4 items-center">
+                    <img src={tshirt} className="w-10 h-10" />
+                    <div>
+                      <p className="">MacBook 2023 16-inch</p>
+                      <p className="mt-1 text-stone-500 text-[14px]">
+                        256GB SSD, 32GB RAM
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="font-medium">$2,000</p>
+                    <p className="text-[14px] text-stone-500">x 1</p>
+                  </div>
+                </div>
+                <div className="p-4 flex justify-between items-center w-full">
+                  <div className="flex gap-4 items-center">
+                    <img src={tshirt} className="w-10 h-10" />
+                    <div>
+                      <p className="">MacBook 2023 16-inch</p>
+                      <p className="mt-1 text-stone-500 text-[14px]">
+                        256GB SSD, 32GB RAM
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="font-medium">$2,000</p>
+                    <p className="text-[14px] text-stone-500">x 1</p>
+                  </div>
+                </div>
+                <div className="p-4 flex justify-between items-center w-full">
+                  <div className="flex gap-4 items-center">
+                    <img src={tshirt} className="w-10 h-10" />
+                    <div>
+                      <p className="">MacBook 2023 16-inch</p>
+                      <p className="mt-1 text-stone-500 text-[14px]">
+                        256GB SSD, 32GB RAM
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="font-medium">$2,000</p>
+                    <p className="text-[14px] text-stone-500">x 1</p>
+                  </div>
+                </div>
+                <div className="p-5 flex flex-col items-end gap-4  w-full">
+                  <div className="flex justify-end xl:justify-between w-full">
+                    <p className="w-1/2 text-right text-stone-500">Subtotal</p>
+                    <p className="w-1/3 text-right">$100.00</p>
+                  </div>
+                  <div className="flex justify-end xl:justify-between w-full">
+                    <p className="w-1/2 text-right text-stone-500">
+                      Shipping, Tax
+                    </p>
+                    <p className="w-1/3 text-right">$100.00</p>
+                  </div>
+                  <div className="flex justify-end xl:justify-between w-full">
+                    <p className="w-1/2 text-right text-stone-500">Total</p>
+                    <p className="w-1/3 text-right">$200.00</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
