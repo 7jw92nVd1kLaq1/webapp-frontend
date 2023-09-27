@@ -13,7 +13,9 @@ import placed from "@/assets/order_placed.svg";
 import shipping from "@/assets/shipping.svg";
 import done from "@/assets/done.svg";
 import send from "@/assets/send.svg";
-import OrderGeneralInfo from "./components/OrderGeneralInfo";
+
+import { formatDateStringMMDDYYYY } from "@/utils/etc";
+import { OrderInfo, OrderItemsInfo } from "./components/OrderInfo";
 import OrderPaymentInfo from "./components/OrderPaymentInfo";
 import OrderItemList from "./components/OrderItemList";
 
@@ -266,6 +268,9 @@ export default function ViewOrderAsCustomer() {
 
   if (Object.keys(order).length < 1) return <div></div>;
 
+  const cryptocurrencyTicker =
+    order.payment.payment.order_payment_balance.payment_method.ticker;
+
   return (
     <div>
       <IntermediaryOfferChat
@@ -278,7 +283,7 @@ export default function ViewOrderAsCustomer() {
             <img src={backArrow} className="block w-8 h-8" />
             <button className="block">GO BACK</button>
           </div>
-          <div className="flex gap-2">
+          <div className="md:flex gap-2 hidden">
             <span className="text-stone-500">ORDER ID:</span>
             <p className="">{orderId}</p>
           </div>
@@ -342,112 +347,14 @@ export default function ViewOrderAsCustomer() {
             </div>
           </div>
           <div className="xl:w-1/4 lg:flex items-start gap-6 xl:block xl:pl-7">
-            <div className="text-[16px] lg:w-1/2 xl:w-full gap-2 items-start mt-7 xl:mt-4">
-              <p className="text-stone-600">ORDER INFO</p>
-              <div className="mt-7">
-                <div className="shadow-md rounded-2xl border border-slate-300 p-4">
-                  <div>
-                    <p className="text-stone-600">Order ID</p>
-                    <p className="mt-2">{orderId}</p>
-                  </div>
-                  <div className="mt-7">
-                    <p className="text-stone-600">Cryptocurrency</p>
-                    <p className="mt-2">Bitcoin (BTC)</p>
-                  </div>
-                  <div className="mt-7">
-                    <p className="text-stone-600">Created Date</p>
-                    <p className="mt-2">10/21/95</p>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-7 divide-y divide-slate-300">
-                <div className="shadow-md rounded-2xl border border-slate-300 p-4">
-                  <p className="text-stone-600">Additional Request</p>
-                  <p className="mt-3">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut
-                    imperdiet vitae neque nec egestas. Phasellus auctor est dui,
-                    non pharetra quam vulputate quis.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-7 divide-y divide-slate-300">
-                <div className="shadow-md rounded-2xl border border-slate-300 p-4">
-                  <p className="text-stone-600">Shipping Address</p>
-                  <div className="mt-3">
-                    <p>123 James Road</p>
-                    <p>Jamesville</p>
-                    <p>Pennsylvania</p>
-                    <p>USA</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="text-[16px] mt-12 lg:mt-7 xl:mt-12 lg:w-1/2 xl:w-full gap-2 items-start ">
-              <p className="text-stone-600">ORDER ITEMS</p>
-              <div className="divide-y divide-slate-300 border-t border-b border-slate-300 mt-7">
-                <div className="p-4 flex justify-between items-center w-full">
-                  <div className="flex gap-4 items-center">
-                    <img src={tshirt} className="w-10 h-10" />
-                    <div>
-                      <p className="">MacBook 2023 16-inch</p>
-                      <p className="mt-1 text-stone-500 text-[14px]">
-                        256GB SSD, 32GB RAM
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <p className="font-medium">$2,000</p>
-                    <p className="text-[14px] text-stone-500">x 1</p>
-                  </div>
-                </div>
-                <div className="p-4 flex justify-between items-center w-full">
-                  <div className="flex gap-4 items-center">
-                    <img src={tshirt} className="w-10 h-10" />
-                    <div>
-                      <p className="">MacBook 2023 16-inch</p>
-                      <p className="mt-1 text-stone-500 text-[14px]">
-                        256GB SSD, 32GB RAM
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <p className="font-medium">$2,000</p>
-                    <p className="text-[14px] text-stone-500">x 1</p>
-                  </div>
-                </div>
-                <div className="p-4 flex justify-between items-center w-full">
-                  <div className="flex gap-4 items-center">
-                    <img src={tshirt} className="w-10 h-10" />
-                    <div>
-                      <p className="">MacBook 2023 16-inch</p>
-                      <p className="mt-1 text-stone-500 text-[14px]">
-                        256GB SSD, 32GB RAM
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <p className="font-medium">$2,000</p>
-                    <p className="text-[14px] text-stone-500">x 1</p>
-                  </div>
-                </div>
-                <div className="p-5 flex flex-col items-end gap-4  w-full">
-                  <div className="flex justify-end xl:justify-between w-full">
-                    <p className="w-1/2 text-right text-stone-500">Subtotal</p>
-                    <p className="w-1/3 text-right">$100.00</p>
-                  </div>
-                  <div className="flex justify-end xl:justify-between w-full">
-                    <p className="w-1/2 text-right text-stone-500">
-                      Shipping, Tax
-                    </p>
-                    <p className="w-1/3 text-right">$100.00</p>
-                  </div>
-                  <div className="flex justify-end xl:justify-between w-full">
-                    <p className="w-1/2 text-right text-stone-500">Total</p>
-                    <p className="w-1/3 text-right">$200.00</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <OrderInfo
+              orderId={order.url_id}
+              cryptocurrencyTicker={cryptocurrencyTicker}
+              createdDate={order.created_at}
+              additionalReq={order.additional_request}
+              shippingAddr={order.address.address}
+            />
+            <OrderItemsInfo items={order.order_items} />
           </div>
         </div>
       </div>

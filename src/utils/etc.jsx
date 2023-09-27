@@ -53,3 +53,20 @@ export const shortenProductName = (name, size = 10) => {
 
   return name.slice(0, whiteSpaceIndexes[whiteSpaceIndexes.length - 1]) + "...";
 };
+
+export const stringifyOptions = (options) => {
+  let returnValue = "";
+
+  if (typeof options != "object")
+    throw new Error("The argument you have passed is not of object type");
+
+  const optionsCopy = Object.entries(options);
+
+  for (const [key, value] of optionsCopy) {
+    const keyValueString = `${key}: ${value.name}, `;
+    returnValue += keyValueString;
+  }
+  returnValue = returnValue.trim().slice(0, -1);
+
+  return returnValue;
+};
