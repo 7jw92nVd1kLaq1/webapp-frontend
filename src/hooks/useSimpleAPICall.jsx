@@ -9,6 +9,7 @@ export const useSimpleAPICall = () => {
 
   const makeAPICall = async (url, fetchOptions) => {
     setIsLoading(true);
+    responseData.current = null;
 
     try {
       const response = await fetch(url, fetchOptions);

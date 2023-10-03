@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useSimpleAPICall } from "@/hooks/useSimpleAPICall";
 
 import ListOrderItemEntry from "./ListOrderItemEntry";
 
@@ -14,7 +15,6 @@ const ListAllUserOrdersPaginationBox = ({
         <button
           className="p-2 px-4 bg-sky-600 rounded-md"
           onClick={() => {
-            callbacks.setItems({});
             callbacks.setCurrentPage((elem) => elem - 1);
           }}
         >
@@ -26,7 +26,6 @@ const ListAllUserOrdersPaginationBox = ({
         <button
           className="p-2 px-4 bg-sky-600 rounded-md"
           onClick={() => {
-            callbacks.setItems({});
             callbacks.setCurrentPage((elem) => elem + 1);
           }}
         >
@@ -39,8 +38,9 @@ const ListAllUserOrdersPaginationBox = ({
 
 export default function ListAllUserOrders() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [items, setItems] = useState({});
   const access_token = useSelector((state) => state.userSession.access_token);
+
+  const { responseData, makeAPICall, isLoading } = useSimpleAPICall();
   const useEffectAsync = async () => {
     const fetchOptions = {
       method: "GET",
@@ -50,14 +50,8 @@ export default function ListAllUserOrders() {
       },
     };
 
-    const response = await fetch(
-      `http://127.0.0.1:8000/api/list-order/?for=all&page=${currentPage}`,
-      fetchOptions
-    );
-
-    const json = await response.json();
-    console.log(json);
-    setItems(json);
+    const url = `http://127.0.0.1:8000/api/list-order/?for=all&page=${currentPage}`;
+    await makeAPICall(url, fetchOptions);
   };
 
   useEffect(() => {
@@ -74,18 +68,22 @@ export default function ListAllUserOrders() {
         <p className="w-2/12">Status</p>
         <p className="w-1/12">Options</p>
       </div>
-      <div className="divide-y divide-slate-300 overflow-hidden rounded-b-md">
-        {items.hasOwnProperty("results") &&
-          items.results.length > 0 &&
-          items.results.map((elem) => {
-            return <ListOrderItemEntry order={elem} />;
-          })}
-      </div>
-      <ListAllUserOrdersPaginationBox
-        currentPage={currentPage}
-        currentItems={items}
-        callbacks={{ setItems: setItems, setCurrentPage: setCurrentPage }}
-      />
+      {!isLoading && responseData && (
+        <div>
+          <div className="divide-y divide-slate-300 overflow-hidden rounded-b-md">
+            {responseData.hasOwnProperty("results") &&
+              responseData.results.length > 0 &&
+              responseData.results.map((elem) => {
+                return <ListOrderItemEntry order={elem} />;
+              })}
+          </div>
+          <ListAllUserOrdersPaginationBox
+            currentPage={currentPage}
+            currentItems={responseData}
+            callbacks={{ setCurrentPage: setCurrentPage }}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,7 @@
 import { useSelector } from "react-redux";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import notification from "@/assets/notification.svg";
-import star from "@/assets/star.svg";
 import backArrow from "@/assets/back_arrow.svg";
 import addIntermediary from "@/assets/add_intermediary.svg";
 import deposit from "@/assets/payment.svg";
@@ -143,6 +142,10 @@ export default function ViewOrderAsCustomer() {
     useSimpleAPICall();
   const access_token = useSelector((state) => state.userSession.access_token);
 
+  const cryptocurrencyTicker =
+    responseData &&
+    responseData.payment.payment.order_payment_balance.payment_method.ticker;
+
   const intermediaryChatElement = useRef();
   const toggleOrderDetail = () => {
     const elem = intermediaryChatElement.current;
@@ -176,9 +179,6 @@ export default function ViewOrderAsCustomer() {
   }, []);
 
   if (isLoading || (!isLoading && !responseData)) return <div></div>;
-
-  const cryptocurrencyTicker =
-    responseData.payment.payment.order_payment_balance.payment_method.ticker;
 
   return (
     <div>
