@@ -28,7 +28,12 @@ const IntermediaryEntryBoxUserInfo = ({ username, reference }) => {
   );
 };
 
-const IntermediaryEntryBox = ({ username, rate, chatToggleCallback }) => {
+const IntermediaryEntryBox = ({
+  username,
+  rate,
+  chatToggleCallback,
+  modalToggleCallback,
+}) => {
   const usernameElement = useRef(null);
   const userInfo = useRef();
 
@@ -77,7 +82,10 @@ const IntermediaryEntryBox = ({ username, rate, chatToggleCallback }) => {
         >
           <p className="text-center font-medium">Message</p>
         </button>
-        <button className="block bg-sky-600 text-white py-5 px-auto grow rounded-lg">
+        <button
+          className="block bg-sky-600 text-white py-5 px-auto grow rounded-lg"
+          onClick={() => modalToggleCallback(username)}
+        >
           <p className="text-center font-medium">Select</p>
         </button>
       </div>
@@ -85,16 +93,21 @@ const IntermediaryEntryBox = ({ username, rate, chatToggleCallback }) => {
   );
 };
 
-const ChooseIntermediaryConfirmation = ({ username }) => {
+const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
   return (
-    <div className="bg-white rounded-2xl p-6 text-[16px]">
+    <div className="bg-white rounded-2xl p-6 text-[16px] w-96">
       <p className="">
         Are you sure that you will go with the user ‘{username}’? You will not
         be able to reverse your decision after this confirmation.
       </p>
       <div className="mt-5">
         <button className="p-3 rounded-xl bg-green-300">Submit</button>
-        <button className="p-3 rounded-xl bg-red-300">Back</button>
+        <button
+          className="p-3 rounded-xl bg-red-300"
+          onClick={() => toggleModal(null)}
+        >
+          Back
+        </button>
       </div>
     </div>
   );
@@ -106,7 +119,16 @@ const ChooseIntermediary = ({
   intermediaryChat,
 }) => {
   const { isModalOpen, openModal, closeModal } = useIsModalOpen();
-  const [chosenUsername, setChosenUsername] = useState(null);
+  const chosenUsername = useRef(null);
+
+  const toggleModal = (username) => {
+    if (isModalOpen) {
+      closeModal();
+    } else {
+      chosenUsername.current = username;
+      openModal();
+    }
+  };
 
   const toggleChat = () => {
     const elem = intermediaryChat.current;
@@ -126,7 +148,10 @@ const ChooseIntermediary = ({
   return (
     <div>
       <Modal isModalOpen={isModalOpen}>
-        <ChooseIntermediaryConfirmation username={chosenUsername} />
+        <ChooseIntermediaryConfirmation
+          username={chosenUsername.current}
+          toggleModal={toggleModal}
+        />
       </Modal>
       <div className="divide-y divide-slate-300">
         <div className="flex flex-col items-center">
@@ -175,6 +200,7 @@ const ChooseIntermediary = ({
                     username={intermediary.user.username}
                     rate={30}
                     chatToggleCallback={toggleChat}
+                    modalToggleCallback={toggleModal}
                   />
                 );
               })}
