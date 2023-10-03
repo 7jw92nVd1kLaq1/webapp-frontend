@@ -12,10 +12,13 @@ import shipping from "@/assets/shipping.svg";
 import done from "@/assets/done.svg";
 import send from "@/assets/send.svg";
 
+import { backendURL } from "@/constants";
+
 import { OrderInfo, OrderItemsInfo } from "./components/OrderInfo";
 import OrderStageChooser from "./components/OrderStageChooser";
 
 import { useParams } from "react-router-dom";
+import { useSimpleAPICall } from "@/hooks/useSimpleAPICall";
 
 const OrderProgressIndicatorStage = ({ image, name }) => {
   return (
@@ -136,7 +139,8 @@ const IntermediaryOfferChat = ({ reference, closeCallback }) => {
 
 export default function ViewOrderAsCustomer() {
   const { orderId } = useParams();
-  const [order, setOrder] = useState({});
+  const { responseData, makeAPICall, isLoading, responseStatusCode } =
+    useSimpleAPICall();
   const access_token = useSelector((state) => state.userSession.access_token);
 
   const intermediaryChatElement = useRef();
@@ -163,24 +167,18 @@ export default function ViewOrderAsCustomer() {
       },
     };
 
-    const resp = await fetch(
-      `http://127.0.0.1:8000/api/order-detail/${orderId}/`,
-      fetchOption
-    );
-
-    const json = await resp.json();
-    console.log(json);
-    setOrder(json);
+    const url = `${backendURL}/api/order-detail/${orderId}/`;
+    await makeAPICall(url, fetchOption);
   };
 
   useEffect(() => {
     requestOrderData();
   }, []);
 
-  if (Object.keys(order).length < 1) return <div></div>;
+  if (isLoading || (!isLoading && !responseData)) return <div></div>;
 
   const cryptocurrencyTicker =
-    order.payment.payment.order_payment_balance.payment_method.ticker;
+    responseData.payment.payment.order_payment_balance.payment_method.ticker;
 
   return (
     <div>
@@ -203,19 +201,19 @@ export default function ViewOrderAsCustomer() {
           <div className="xl:w-3/4 xl:pr-10 divide-y divide-slate-300">
             <OrderProgressIndicator />
             <OrderStageChooser
-              order={order}
+              order={responseData}
               intermediaryChat={intermediaryChatElement}
             />
           </div>
           <div className="xl:w-1/4 lg:flex items-start gap-6 xl:block xl:pl-7">
             <OrderInfo
-              orderId={order.url_id}
+              orderId={responseData.url_id}
               cryptocurrencyTicker={cryptocurrencyTicker}
-              createdDate={order.created_at}
-              additionalReq={order.additional_request}
-              shippingAddr={order.address.address}
+              createdDate={responseData.created_at}
+              additionalReq={responseData.additional_request}
+              shippingAddr={responseData.address.address}
             />
-            <OrderItemsInfo items={order.order_items} />
+            <OrderItemsInfo items={responseData.order_items} />
           </div>
         </div>
       </div>

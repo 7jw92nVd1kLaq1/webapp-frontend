@@ -97,14 +97,18 @@ const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
   return (
     <div className="bg-white rounded-2xl p-6 text-[16px] w-96">
       <p className="">
-        Are you sure that you will go with the user ‘{username}’? You will not
-        be able to reverse your decision after this confirmation.
+        Are you sure that you will go with the user{" "}
+        <span className="font-bold">‘{username}’</span>?
       </p>
-      <div className="mt-5">
-        <button className="p-3 rounded-xl bg-green-300">Submit</button>
+      <p className="mt-2">
+        <span className="text-red-500 font-bold">Warning:</span> You will not be
+        able to reverse your decision after this confirmation.
+      </p>
+      <div className="mt-5 text-white flex gap-3">
+        <button className="p-3 rounded-lg bg-green-500">Submit</button>
         <button
-          className="p-3 rounded-xl bg-red-300"
-          onClick={() => toggleModal(null)}
+          className="p-3 rounded-lg bg-red-500"
+          onClick={() => toggleModal()}
         >
           Back
         </button>
@@ -121,7 +125,7 @@ const ChooseIntermediary = ({
   const { isModalOpen, openModal, closeModal } = useIsModalOpen();
   const chosenUsername = useRef(null);
 
-  const toggleModal = (username) => {
+  const toggleModal = (username = null) => {
     if (isModalOpen) {
       closeModal();
     } else {
