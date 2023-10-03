@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useIsModalOpen } from "@/hooks/useIsModalOpen";
+
+import Modal from "@/components/Modal";
 
 import star from "@/assets/star.svg";
 import confetti from "@/assets/confetti.png";
@@ -82,12 +85,30 @@ const IntermediaryEntryBox = ({ username, rate, chatToggleCallback }) => {
   );
 };
 
+const ChooseIntermediaryConfirmation = ({ username }) => {
+  return (
+    <div className="bg-white rounded-2xl p-6 text-[16px]">
+      <p className="">
+        Are you sure that you will go with the user ‘{username}’? You will not
+        be able to reverse your decision after this confirmation.
+      </p>
+      <div className="mt-5">
+        <button className="p-3 rounded-xl bg-green-300">Submit</button>
+        <button className="p-3 rounded-xl bg-red-300">Back</button>
+      </div>
+    </div>
+  );
+};
+
 const ChooseIntermediary = ({
   intermediaries,
   totalPrice,
   intermediaryChat,
 }) => {
-  const toggleOrderDetail = () => {
+  const { isModalOpen, openModal, closeModal } = useIsModalOpen();
+  const [chosenUsername, setChosenUsername] = useState(null);
+
+  const toggleChat = () => {
     const elem = intermediaryChat.current;
     if (elem.classList.contains("w-0")) {
       elem.classList.remove("w-0");
@@ -101,67 +122,63 @@ const ChooseIntermediary = ({
       elem.classList.remove("w-full");
     }
   };
+
   return (
-    <div className="divide-y divide-slate-300">
-      <div className="flex flex-col items-center">
-        <div className="mt-28 relative w-48">
-          <img
-            src={confetti}
-            className="w-48 h-48 absolute"
-            style={{
-              transform: "translate(-50%, -50%)",
-              top: "50%",
-              left: "50%",
-            }}
-          />
-          <div
-            style={{
-              transform: "translate(-50%, -50%)",
-              top: "50%",
-              left: "50%",
-            }}
-            className="w-32 h-32 rounded-full border-4 border-black absolute bg-white mx-auto"
-          ></div>
-          <div className="w-32 h-32 rounded-full border-4 border-black relative mx-auto">
+    <div>
+      <Modal isModalOpen={isModalOpen}>
+        <ChooseIntermediaryConfirmation username={chosenUsername} />
+      </Modal>
+      <div className="divide-y divide-slate-300">
+        <div className="flex flex-col items-center">
+          <div className="mt-28 relative w-48">
             <img
-              src={addIntermediary}
-              className="w-16 h-16 absolute"
+              src={confetti}
+              className="w-48 h-48 absolute"
               style={{
                 transform: "translate(-50%, -50%)",
                 top: "50%",
                 left: "50%",
               }}
             />
+            <div
+              style={{
+                transform: "translate(-50%, -50%)",
+                top: "50%",
+                left: "50%",
+              }}
+              className="w-32 h-32 rounded-full border-4 border-black absolute bg-white mx-auto"
+            ></div>
+            <div className="w-32 h-32 rounded-full border-4 border-black relative mx-auto">
+              <img
+                src={addIntermediary}
+                className="w-16 h-16 absolute"
+                style={{
+                  transform: "translate(-50%, -50%)",
+                  top: "50%",
+                  left: "50%",
+                }}
+              />
+            </div>
           </div>
+          <p className="mt-16 text-[24px] font-semibold">Assign Intermediary</p>
+          <p className="mt-2 mb-20 text-[16px] text-center">
+            It's time to choose an intermediary for your order!
+          </p>
         </div>
-        <p className="mt-16 text-[24px] font-semibold">Assign Intermediary</p>
-        <p className="mt-2 mb-20 text-[16px] text-center">
-          It's time to choose an intermediary for your order!
-        </p>
-      </div>
-      <div className="text-[20px] py-10">
-        <div className="flex items-start flex-wrap gap-4 my-10">
-          {intermediaries &&
-            intermediaries.length >= 1 &&
-            intermediaries.map((intermediary) => {
-              return (
-                <IntermediaryEntryBox
-                  username={intermediary.user.username}
-                  rate={30}
-                  chatToggleCallback={toggleOrderDetail}
-                />
-              );
-            })}
-          <IntermediaryEntryBox
-            username={"Alex0945"}
-            rate={30}
-            chatToggleCallback={toggleOrderDetail}
-          />
-          <IntermediaryEntryBox
-            username={"Alex0946"}
-            rate={20}
-            chatToggleCallback={toggleOrderDetail}
-          />
+        <div className="text-[20px] py-10">
+          <div className="flex items-start flex-wrap gap-4 my-10">
+            {intermediaries &&
+              intermediaries.length >= 1 &&
+              intermediaries.map((intermediary) => {
+                return (
+                  <IntermediaryEntryBox
+                    username={intermediary.user.username}
+                    rate={30}
+                    chatToggleCallback={toggleChat}
+                  />
+                );
+              })}
+          </div>
         </div>
       </div>
     </div>
