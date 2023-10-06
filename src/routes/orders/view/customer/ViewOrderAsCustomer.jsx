@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef } from "react";
 
 import notification from "@/assets/notification.svg";
@@ -18,6 +18,8 @@ import OrderStageChooser from "./components/OrderStageChooser";
 
 import { useParams } from "react-router-dom";
 import { useSimpleAPICall } from "@/hooks/useSimpleAPICall";
+
+import { setOrder } from "@/redux/viewOrderAsCustomerSlice";
 
 const OrderProgressIndicatorStage = ({ image, name }) => {
   return (
@@ -137,14 +139,15 @@ const IntermediaryOfferChat = ({ reference, closeCallback }) => {
 };
 
 export default function ViewOrderAsCustomer() {
+  const dispatch = useDispatch();
   const { orderId } = useParams();
   const { responseData, makeAPICall, isLoading, responseStatusCode } =
     useSimpleAPICall();
   const access_token = useSelector((state) => state.userSession.access_token);
+  const order = useSelector((state) => state.viewOrderAsCustomer.order);
 
   const cryptocurrencyTicker =
-    responseData &&
-    responseData.payment.payment.order_payment_balance.payment_method.ticker;
+    order && order.payment.payment.order_payment_balance.payment_method.ticker;
 
   const intermediaryChatElement = useRef();
   const toggleOrderDetail = () => {
@@ -166,6 +169,7 @@ export default function ViewOrderAsCustomer() {
     const fetchOption = {
       method: "GET",
       headers: {
+        "Content-Type": "application/json",
         Authorization: `Bearer ${access_token}`,
       },
     };
@@ -178,7 +182,11 @@ export default function ViewOrderAsCustomer() {
     requestOrderData();
   }, []);
 
-  if (isLoading || (!isLoading && !responseData)) return <div></div>;
+  useEffect(() => {
+    if (responseData && responseData != order) dispatch(setOrder(responseData));
+  });
+
+  if (isLoading || !order) return <div></div>;
 
   return (
     <div>
@@ -201,19 +209,19 @@ export default function ViewOrderAsCustomer() {
           <div className="xl:w-3/4 xl:pr-10 divide-y divide-slate-300">
             <OrderProgressIndicator />
             <OrderStageChooser
-              order={responseData}
+              order={order}
               intermediaryChat={intermediaryChatElement}
             />
           </div>
           <div className="xl:w-1/4 lg:flex items-start gap-6 xl:block xl:pl-7">
             <OrderInfo
-              orderId={responseData.url_id}
+              orderId={order.url_id}
               cryptocurrencyTicker={cryptocurrencyTicker}
-              createdDate={responseData.created_at}
-              additionalReq={responseData.additional_request}
-              shippingAddr={responseData.address.address}
+              createdDate={order.created_at}
+              additionalReq={order.additional_request}
+              shippingAddr={order.address.address}
             />
-            <OrderItemsInfo items={responseData.order_items} />
+            <OrderItemsInfo items={order.order_items} />
           </div>
         </div>
       </div>

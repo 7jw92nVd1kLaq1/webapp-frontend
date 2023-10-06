@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useIsModalOpen } from "@/hooks/useIsModalOpen";
+import { useSimpleAPICall } from "@/hooks/useSimpleAPICall";
 
+import { backendURL } from "@/constants";
 import Modal from "@/components/Modal";
 
 import star from "@/assets/star.svg";
 import confetti from "@/assets/confetti.png";
 import addIntermediary from "@/assets/add_intermediary.svg";
+
+import { setOrder } from "@/redux/viewOrderAsCustomerSlice";
+import { getCSRFToken } from "@/utils/cookie";
+
+import { useDispatch, useSelector } from "react-redux";
 
 const IntermediaryEntryBoxUserInfo = ({ username, reference }) => {
   return (
@@ -94,6 +101,55 @@ const IntermediaryEntryBox = ({
 };
 
 const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
+  const dispatch = useDispatch();
+  const csrfToken = useRef(null);
+  const submitCount = useRef(0);
+  const access_token = useSelector((state) => state.userSession.access_token);
+  const order = useSelector((state) => state.viewOrderAsCustomer.order);
+
+  const { responseData, makeAPICall, isLoading, responseStatusCode } =
+    useSimpleAPICall();
+
+  const submitData = async () => {
+    if (!access_token) return;
+    if (!order) return;
+    if (!orderUpdateAPI) return;
+    if (!csrfToken.current) return;
+
+    const url = `${backendURL}/api/modify-order/`;
+    const fetchOptions = {
+      method: "PATCH",
+      headers: {
+        "X-CSRFToken": csrfToken.current,
+        Authorization: `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        order_id: order.url_id,
+        username: username,
+      }),
+    };
+
+    await makeAPICall(url, fetchOptions);
+    submitCount.current++;
+  };
+
+  const useEffectAsync = async () => {
+    const csrf = await getCSRFToken();
+    csrfToken.current = csrf;
+  };
+
+  useEffect(() => {
+    useEffectAsync();
+  }, []);
+
+  useEffect(() => {
+    if (submitCount.current > 0 && responseStatusCode === 201) {
+      toggleModal();
+      dispatch(setOrder(responseData));
+    }
+  }, [submitCount.current]);
+
   return (
     <div className="bg-white rounded-2xl p-6 text-[16px] w-96">
       <p className="">
@@ -105,7 +161,12 @@ const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
         able to reverse your decision after this confirmation.
       </p>
       <div className="mt-5 text-white flex gap-3">
-        <button className="p-3 rounded-lg bg-green-500">Submit</button>
+        <button
+          className="p-3 rounded-lg bg-green-500"
+          onClick={() => submitData()}
+        >
+          Submit
+        </button>
         <button
           className="p-3 rounded-lg bg-red-500"
           onClick={() => toggleModal()}

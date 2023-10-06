@@ -52,6 +52,7 @@ export default function ListAllUserOrders() {
 
     const url = `http://127.0.0.1:8000/api/list-order/?for=all&page=${currentPage}`;
     await makeAPICall(url, fetchOptions);
+    console.log(responseData);
   };
 
   useEffect(() => {
