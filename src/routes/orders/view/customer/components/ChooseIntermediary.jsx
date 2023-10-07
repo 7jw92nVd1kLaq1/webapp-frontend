@@ -10,7 +10,9 @@ import confetti from "@/assets/confetti.png";
 import addIntermediary from "@/assets/add_intermediary.svg";
 
 import { setOrder } from "@/redux/viewOrderAsCustomerSlice";
+
 import { getCSRFToken } from "@/utils/cookie";
+import { WaitingCircle } from "@/utils/waitingCircle";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -103,18 +105,30 @@ const IntermediaryEntryBox = ({
 const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
   const dispatch = useDispatch();
   const csrfToken = useRef(null);
-  const submitCount = useRef(0);
   const access_token = useSelector((state) => state.userSession.access_token);
   const order = useSelector((state) => state.viewOrderAsCustomer.order);
 
-  const { responseData, makeAPICall, isLoading, responseStatusCode } =
-    useSimpleAPICall();
+  const {
+    responseData,
+    makeAPICall,
+    isLoading,
+    responseStatusCode,
+    callCount,
+  } = useSimpleAPICall();
 
   const submitData = async () => {
-    if (!access_token) return;
-    if (!order) return;
-    if (!orderUpdateAPI) return;
-    if (!csrfToken.current) return;
+    if (!access_token) {
+      console.log("No access_token");
+      return;
+    }
+    if (!order) {
+      console.log("No order");
+      return;
+    }
+    if (!csrfToken.current) {
+      console.log("No CSRFToken");
+      return;
+    }
 
     const url = `${backendURL}/api/modify-order/`;
     const fetchOptions = {
@@ -131,12 +145,11 @@ const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
     };
 
     await makeAPICall(url, fetchOptions);
-    submitCount.current++;
   };
 
   const useEffectAsync = async () => {
     const csrf = await getCSRFToken();
-    csrfToken.current = csrf;
+    csrfToken.current = csrf[0];
   };
 
   useEffect(() => {
@@ -144,36 +157,45 @@ const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
   }, []);
 
   useEffect(() => {
-    if (submitCount.current > 0 && responseStatusCode === 201) {
+    if (callCount > 0 && responseStatusCode === 201) {
       toggleModal();
       dispatch(setOrder(responseData));
     }
-  }, [submitCount.current]);
+  }, [callCount]);
 
   return (
     <div className="bg-white rounded-2xl p-6 text-[16px] w-96">
-      <p className="">
-        Are you sure that you will go with the user{" "}
-        <span className="font-bold">‘{username}’</span>?
-      </p>
-      <p className="mt-2">
-        <span className="text-red-500 font-bold">Warning:</span> You will not be
-        able to reverse your decision after this confirmation.
-      </p>
-      <div className="mt-5 text-white flex gap-3">
-        <button
-          className="p-3 rounded-lg bg-green-500"
-          onClick={() => submitData()}
-        >
-          Submit
-        </button>
-        <button
-          className="p-3 rounded-lg bg-red-500"
-          onClick={() => toggleModal()}
-        >
-          Back
-        </button>
-      </div>
+      {isLoading && (
+        <div className="w-full flex justify-center">
+          <WaitingCircle numbers={50} unit={"px"} />
+        </div>
+      )}
+      {!isLoading && (
+        <div>
+          <p className="">
+            Are you sure that you will go with the user{" "}
+            <span className="font-bold">‘{username}’</span>?
+          </p>
+          <p className="mt-2">
+            <span className="text-red-500 font-bold">Warning:</span> You will
+            not be able to reverse your decision after this confirmation.
+          </p>
+          <div className="mt-5 text-white flex gap-3">
+            <button
+              className="p-3 rounded-lg bg-green-500"
+              onClick={() => submitData()}
+            >
+              Submit
+            </button>
+            <button
+              className="p-3 rounded-lg bg-red-500"
+              onClick={() => toggleModal()}
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

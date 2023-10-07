@@ -4,8 +4,9 @@ export const useSimpleAPICall = () => {
   const responseStatusCode = useRef(0);
   const responseData = useRef(null);
   const error = useRef(null);
+  const apiCallCount = useRef(0);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const makeAPICall = async (url, fetchOptions) => {
     setIsLoading(true);
@@ -23,6 +24,7 @@ export const useSimpleAPICall = () => {
       error.current = err;
     }
 
+    apiCallCount.current++;
     setIsLoading(false);
 
     // Return the data received and stored in a ref "responseData" in case of a user needing the data,
@@ -37,5 +39,6 @@ export const useSimpleAPICall = () => {
     makeAPICall,
     error: error.current,
     isLoading,
+    callCount: apiCallCount.current,
   };
 };

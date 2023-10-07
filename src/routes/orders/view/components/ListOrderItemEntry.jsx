@@ -26,7 +26,9 @@ export default function ListOrderItemEntry({ order }) {
           {shortenName(order.order_items[0].name)}
         </Link>
       </p>
-      <p className="w-3/12">{order.intermediary && order.intermediary}</p>
+      <p className="w-3/12">
+        {order.intermediary && order.intermediary.intermediary.username}
+      </p>
       <p className="w-2/12">
         {`${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`}
       </p>

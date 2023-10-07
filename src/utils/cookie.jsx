@@ -6,8 +6,8 @@ export const getCSRFToken = async () => {
       method: "GET",
       credentials: "include",
     });
-    const json = response.json();
-    return json.csrfToken;
+    const json = await response.json();
+    return json.csrftoken;
   } catch (err) {
     return "";
   }

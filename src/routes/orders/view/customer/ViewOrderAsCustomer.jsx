@@ -141,10 +141,17 @@ const IntermediaryOfferChat = ({ reference, closeCallback }) => {
 export default function ViewOrderAsCustomer() {
   const dispatch = useDispatch();
   const { orderId } = useParams();
-  const { responseData, makeAPICall, isLoading, responseStatusCode } =
-    useSimpleAPICall();
+  const {
+    responseData,
+    makeAPICall,
+    isLoading,
+    responseStatusCode,
+    callCount,
+  } = useSimpleAPICall();
   const access_token = useSelector((state) => state.userSession.access_token);
   const order = useSelector((state) => state.viewOrderAsCustomer.order);
+  console.log(orderId);
+  console.log(order);
 
   const cryptocurrencyTicker =
     order && order.payment.payment.order_payment_balance.payment_method.ticker;
@@ -184,7 +191,11 @@ export default function ViewOrderAsCustomer() {
 
   useEffect(() => {
     if (responseData && responseData != order) dispatch(setOrder(responseData));
-  });
+
+    return () => {
+      dispatch(setOrder(null));
+    };
+  }, [callCount]);
 
   if (isLoading || !order) return <div></div>;
 
