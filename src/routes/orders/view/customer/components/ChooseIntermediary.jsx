@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useIsModalOpen } from "@/hooks/useIsModalOpen";
 import { useSimpleAPICall } from "@/hooks/useSimpleAPICall";
 
@@ -12,7 +12,7 @@ import addIntermediary from "@/assets/add_intermediary.svg";
 import { setOrder } from "@/redux/viewOrderAsCustomerSlice";
 
 import { getCSRFToken } from "@/utils/cookie";
-import { WaitingCircle } from "@/utils/waitingCircle";
+import { FailureCircle, WaitingCircle } from "@/utils/waitingCircle";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -43,6 +43,10 @@ const IntermediaryEntryBox = ({
   chatToggleCallback,
   modalToggleCallback,
 }) => {
+  /*
+   * Calculate the total price of the order in both dollar and Cryptocurrency by applying
+   * the rate offered by a candidate
+   */
   const usernameElement = useRef(null);
   const userInfo = useRef();
 
@@ -163,48 +167,78 @@ const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
     }
   }, [callCount]);
 
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-2xl p-6 text-[16px] w-96">
+        <div className="w-full flex justify-center">
+          <WaitingCircle numbers={100} unit={"px"} />
+        </div>
+      </div>
+    );
+  }
+
+  if (responseStatusCode > 201 && callCount > 0) {
+    return (
+      <div className="bg-white rounded-2xl p-6 text-[16px] w-96">
+        <div className="w-full flex justify-center">
+          <FailureCircle numbers={100} unit={"px"} />
+        </div>
+        <div className="flex flex-col gap-1 items-center mt-5">
+          <p className="">Something has gone wrong.</p>
+          <p className="">Please try again.</p>
+        </div>
+        <div className="flex gap-3 items-center justify-center text-white mt-5">
+          <button
+            className="p-3 rounded-lg bg-green-500"
+            onClick={() => submitData()}
+          >
+            Retry
+          </button>
+          <button
+            className="p-3 rounded-lg bg-red-500"
+            onClick={() => toggleModal()}
+          >
+            Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-2xl p-6 text-[16px] w-96">
-      {isLoading && (
-        <div className="w-full flex justify-center">
-          <WaitingCircle numbers={50} unit={"px"} />
+      <div>
+        <p className="">
+          Are you sure that you will go with the user{" "}
+          <span className="font-bold">‘{username}’</span>?
+        </p>
+        <p className="mt-2">
+          <span className="text-red-500 font-bold">Warning:</span> You will not
+          be able to reverse your decision after this confirmation.
+        </p>
+        <div className="mt-5 text-white flex gap-3">
+          <button
+            className="p-3 rounded-lg bg-green-500"
+            onClick={() => submitData()}
+          >
+            Submit
+          </button>
+          <button
+            className="p-3 rounded-lg bg-red-500"
+            onClick={() => toggleModal()}
+          >
+            Back
+          </button>
         </div>
-      )}
-      {!isLoading && (
-        <div>
-          <p className="">
-            Are you sure that you will go with the user{" "}
-            <span className="font-bold">‘{username}’</span>?
-          </p>
-          <p className="mt-2">
-            <span className="text-red-500 font-bold">Warning:</span> You will
-            not be able to reverse your decision after this confirmation.
-          </p>
-          <div className="mt-5 text-white flex gap-3">
-            <button
-              className="p-3 rounded-lg bg-green-500"
-              onClick={() => submitData()}
-            >
-              Submit
-            </button>
-            <button
-              className="p-3 rounded-lg bg-red-500"
-              onClick={() => toggleModal()}
-            >
-              Back
-            </button>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
 
-const ChooseIntermediary = ({
-  intermediaries,
-  totalPrice,
-  intermediaryChat,
-}) => {
+const ChooseIntermediary = ({ intermediaries, intermediaryChat }) => {
+  /*
+   * Assign to each entry the total price of the order.
+   */
   const { isModalOpen, openModal, closeModal } = useIsModalOpen();
   const chosenUsername = useRef(null);
 

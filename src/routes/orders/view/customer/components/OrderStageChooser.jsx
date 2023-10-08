@@ -5,7 +5,6 @@ export default function OrderStageChooser({ order, intermediaryChat }) {
     return (
       <ChooseIntermediary
         intermediaries={order.orderintermediarycandidate_set}
-        totalPrice={123}
         intermediaryChat={intermediaryChat}
       />
     );

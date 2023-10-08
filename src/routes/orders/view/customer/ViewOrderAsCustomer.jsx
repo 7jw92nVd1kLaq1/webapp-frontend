@@ -20,6 +20,7 @@ import { useParams } from "react-router-dom";
 import { useSimpleAPICall } from "@/hooks/useSimpleAPICall";
 
 import { setOrder } from "@/redux/viewOrderAsCustomerSlice";
+import { FailureCircle, WaitingCircle } from "@/utils/waitingCircle";
 
 const OrderProgressIndicatorStage = ({ image, name }) => {
   return (
@@ -150,8 +151,6 @@ export default function ViewOrderAsCustomer() {
   } = useSimpleAPICall();
   const access_token = useSelector((state) => state.userSession.access_token);
   const order = useSelector((state) => state.viewOrderAsCustomer.order);
-  console.log(orderId);
-  console.log(order);
 
   const cryptocurrencyTicker =
     order && order.payment.payment.order_payment_balance.payment_method.ticker;
@@ -173,6 +172,7 @@ export default function ViewOrderAsCustomer() {
   };
 
   const requestOrderData = async () => {
+    if (order) dispatch(setOrder(null));
     const fetchOption = {
       method: "GET",
       headers: {
@@ -190,52 +190,81 @@ export default function ViewOrderAsCustomer() {
   }, []);
 
   useEffect(() => {
-    if (responseData && responseData != order) dispatch(setOrder(responseData));
+    if (responseStatusCode === 200) dispatch(setOrder(responseData));
 
     return () => {
       dispatch(setOrder(null));
     };
   }, [callCount]);
 
-  if (isLoading || !order) return <div></div>;
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <WaitingCircle numbers={100} unit={"px"} />
+      </div>
+    );
+  }
 
-  return (
-    <div>
-      <IntermediaryOfferChat
-        reference={intermediaryChatElement}
-        closeCallback={toggleOrderDetail}
-      />
-      <div className="px-12 lg:px-16 py-12 bg-white flex flex-col divide-y divide-slate-300 z-10">
-        <div className="flex justify-between items-center pb-4 text-[16px]">
-          <div className="flex gap-2 items-center">
-            <img src={backArrow} className="block w-8 h-8" />
-            <button className="block">GO BACK</button>
+  if (responseStatusCode >= 400) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96">
+        <FailureCircle numbers={100} unit={"px"} />
+        <p className="mt-5 text-[24px] font-medium">Failed to load</p>
+        <button
+          className="p-3 rounded-xl bg-sky-600 text-white mt-5 text-[16px] font-medium"
+          onClick={() => requestOrderData()}
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (order) {
+    return (
+      <div>
+        <IntermediaryOfferChat
+          reference={intermediaryChatElement}
+          closeCallback={toggleOrderDetail}
+        />
+        <div className="px-12 lg:px-16 py-12 bg-white flex flex-col divide-y divide-slate-300 z-10">
+          <div className="flex justify-between items-center pb-4 text-[16px]">
+            <div className="flex gap-2 items-center">
+              <img src={backArrow} className="block w-8 h-8" />
+              <button className="block">GO BACK</button>
+            </div>
+            <div className="md:flex gap-2 hidden">
+              <span className="text-stone-500">ORDER ID:</span>
+              <p className="">{orderId}</p>
+            </div>
           </div>
-          <div className="md:flex gap-2 hidden">
-            <span className="text-stone-500">ORDER ID:</span>
-            <p className="">{orderId}</p>
-          </div>
-        </div>
-        <div className="xl:flex justify-between items-start py-10 xl:divide-x divide-y xl:divide-y-0 divide-slate-300">
-          <div className="xl:w-3/4 xl:pr-10 divide-y divide-slate-300">
-            <OrderProgressIndicator />
-            <OrderStageChooser
-              order={order}
-              intermediaryChat={intermediaryChatElement}
-            />
-          </div>
-          <div className="xl:w-1/4 lg:flex items-start gap-6 xl:block xl:pl-7">
-            <OrderInfo
-              orderId={order.url_id}
-              cryptocurrencyTicker={cryptocurrencyTicker}
-              createdDate={order.created_at}
-              additionalReq={order.additional_request}
-              shippingAddr={order.address.address}
-            />
-            <OrderItemsInfo items={order.order_items} />
+          <div className="xl:flex justify-between items-start py-10 xl:divide-x divide-y xl:divide-y-0 divide-slate-300">
+            <div className="xl:w-3/4 xl:pr-10 divide-y divide-slate-300">
+              <OrderProgressIndicator />
+              <OrderStageChooser
+                order={order}
+                intermediaryChat={intermediaryChatElement}
+              />
+            </div>
+            <div className="xl:w-1/4 lg:flex items-start gap-6 xl:block xl:pl-7">
+              <OrderInfo
+                orderId={order.url_id}
+                cryptocurrencyTicker={cryptocurrencyTicker}
+                createdDate={order.created_at}
+                additionalReq={order.additional_request}
+                shippingAddr={order.address.address}
+              />
+              <OrderItemsInfo items={order.order_items} />
+            </div>
           </div>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center h-64">
+      <WaitingCircle numbers={100} unit={"px"} />
     </div>
   );
 }
