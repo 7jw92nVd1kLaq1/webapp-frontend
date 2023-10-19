@@ -85,7 +85,7 @@ const IntermediaryEntryBox = ({
         <p className="font-medium">You Pay</p>
         <div className="font-semibold">
           <p>0.20000000</p>
-          <p className="font-semibold">BTC</p>
+          <p>BTC</p>
         </div>
       </div>
       <div className="w-full mt-14 flex gap-3 text-[16px]">
@@ -114,9 +114,9 @@ const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
 
   const {
     responseData,
+    responseStatusCode,
     makeAPICall,
     isLoading,
-    responseStatusCode,
     callCount,
   } = useSimpleAPICall();
 
@@ -177,7 +177,7 @@ const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
     );
   }
 
-  if (responseStatusCode > 201 && callCount > 0) {
+  if (responseStatusCode > 201) {
     return (
       <div className="bg-white rounded-2xl p-6 text-[16px] w-96">
         <div className="w-full flex justify-center">

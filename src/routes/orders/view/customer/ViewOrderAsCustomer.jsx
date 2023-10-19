@@ -153,7 +153,7 @@ export default function ViewOrderAsCustomer() {
   const order = useSelector((state) => state.viewOrderAsCustomer.order);
 
   const cryptocurrencyTicker =
-    order && order.payment.payment.order_payment_balance.payment_method.ticker;
+    order && order.payment.payment.payment_methods[0].ticker;
 
   const intermediaryChatElement = useRef();
   const toggleOrderDetail = () => {

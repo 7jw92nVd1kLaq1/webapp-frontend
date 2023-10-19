@@ -4,6 +4,48 @@ import {
   stringifyOptions,
 } from "@/utils/etc";
 
+import edit from "@/assets/edit_black.svg";
+import { useEffect, useRef, useMemo } from "react";
+
+const HoverAppearButtonsGroup = ({ children, reference }) => {
+  const elementRef = useRef(null);
+
+  const displayEditButton = () => {
+    elementRef.current.classList.remove("hidden");
+  };
+  const hideEditButton = () => {
+    elementRef.current.classList.add("hidden");
+  };
+
+  useEffect(() => {
+    const referenceCopy = reference.current;
+    referenceCopy.addEventListener("mouseover", displayEditButton);
+    referenceCopy.addEventListener("mouseout", hideEditButton);
+
+    return () => {
+      referenceCopy.removeEventListener("mouseover", displayEditButton);
+      referenceCopy.removeEventListener("mouseout", hideEditButton);
+    };
+  });
+
+  return (
+    <div
+      ref={elementRef}
+      className="absolute top-[0%] my-auto text-center right-[0%] flex items-center gap-2 hidden"
+    >
+      {children}
+    </div>
+  );
+};
+
+const EditButton = () => {
+  return (
+    <button>
+      <img src={edit} className="w-6 h-6" />
+    </button>
+  );
+};
+
 export const OrderInfo = ({
   orderId,
   cryptocurrencyTicker,
@@ -11,7 +53,11 @@ export const OrderInfo = ({
   additionalReq,
   shippingAddr,
 }) => {
-  const dateInString = formatDateStringMMDDYYYY(new Date(createdDate));
+  const elementRef = useRef(null);
+  const dateInString = useMemo(
+    () => formatDateStringMMDDYYYY(new Date(createdDate)),
+    [createdDate]
+  );
 
   return (
     <div className="text-[16px] lg:w-1/2 xl:w-full gap-2 items-start mt-7 xl:mt-4">
@@ -33,8 +79,16 @@ export const OrderInfo = ({
         </div>
       </div>
       <div className="mt-7 divide-y divide-slate-300">
-        <div className="shadow-md rounded-2xl border border-slate-300 p-4">
-          <p className="text-stone-600">Additional Request</p>
+        <div
+          className="shadow-md rounded-2xl border border-slate-300 p-4"
+          ref={elementRef}
+        >
+          <div className="relative">
+            <p className="text-stone-600">Additional Request</p>
+            <HoverAppearButtonsGroup reference={elementRef}>
+              <EditButton />
+            </HoverAppearButtonsGroup>
+          </div>
           {additionalReq ? (
             <div className="mt-3">{additionalReq}</div>
           ) : (
