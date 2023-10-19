@@ -110,12 +110,17 @@ export default function AcceptURLsForItems() {
     });
 
     return () => {
-      if (subObj.current != null && centrifugeObj.current != null) {
+      if (subObj.current != null) {
         subObj.current.unsubscribe();
+      }
+
+      if (centrifugeObj.current != null) {
         centrifugeObj.current.disconnect();
       }
     };
   }, []);
+
+  console.log(items);
 
   return (
     <div

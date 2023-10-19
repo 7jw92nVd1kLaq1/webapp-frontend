@@ -39,6 +39,10 @@ const HoverAppearButtonsGroup = ({ children, reference }) => {
 };
 
 const EditButton = () => {
+  /*
+   * TODO: Add the functionality of editing the additional request of an order upon
+   * clicking the button
+   */
   return (
     <button>
       <img src={edit} className="w-6 h-6" />

@@ -14,7 +14,7 @@ const ItemResultDisplayBoxOptionBox = ({
     let url = e.currentTarget.id;
     if (!url) return;
 
-    const target_url = `${itemDomain}dp/${url}`;
+    const target_url = `${itemDomain}${url}`;
     await requestItemJSON(target_url);
   };
 

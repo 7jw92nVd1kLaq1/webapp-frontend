@@ -71,23 +71,23 @@ export const ItemBasketDisplayBox = () => {
                     </p>
                     {"price_in_dollar" in elem && (
                       <p className="text-sm">
-                        $
                         {(
                           parseFloat(elem.price_in_dollar) *
                           parseInt(elem.amount)
                         ).toFixed(2)}{" "}
+                        USD{" "}
                         <span className="text-slate-400">
-                          ({elem.currency}
-                          {(parseFloat(elem.price) * elem.amount).toFixed(2)})
+                          ({(parseFloat(elem.price) * elem.amount).toFixed(2)}{" "}
+                          {elem.currency})
                         </span>
                       </p>
                     )}
                     {!("price_in_dollar" in elem) && (
                       <p className="text-sm ">
-                        $
                         {(
                           parseFloat(elem.price) * parseInt(elem.amount)
-                        ).toFixed(2)}
+                        ).toFixed(2)}{" "}
+                        USD
                       </p>
                     )}
                   </div>
@@ -142,16 +142,18 @@ export const ItemBasketDisplayBox = () => {
         <div className="flex items-end justify-between">
           <p className="text-sm text-slate-500">Additional Cost</p>
           <p className="text-sm">
-            ${isNaN(additionalCost) ? "0.00" : additionalCost.toFixed(2)}
+            {isNaN(additionalCost) ? "0.00" : additionalCost.toFixed(2)} USD
           </p>
         </div>
         <div className="flex items-end justify-between">
           <p className="text-sm text-slate-500">Subtotal</p>
           <p className="font-medium">
-            $
             {isNaN(additionalCost)
               ? calculateSubTotal(currentBasket).toFixed(2)
-              : (calculateSubTotal(currentBasket) + additionalCost).toFixed(2)}
+              : (calculateSubTotal(currentBasket) + additionalCost).toFixed(
+                  2
+                )}{" "}
+            USD
           </p>
         </div>
       </div>

@@ -40,7 +40,9 @@ const ItemResultDisplayBox = ({ requestItemJSON, itemJSON }) => {
           <img src={star} className="w-5 h-auto" />{" "}
           <span>{`${itemJSON.rating} out of 5.0`}</span>
         </p>
-        <p className="mt-3 text-lg font-medium">${itemJSON.price}</p>
+        <p className="mt-3 text-lg font-medium">
+          {itemJSON.price} {itemJSON.currency}
+        </p>
       </div>
       {optionKeys.map((key) => {
         return (
