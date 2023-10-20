@@ -5,17 +5,19 @@ import {
 } from "@/utils/etc";
 
 import edit from "@/assets/edit_black.svg";
-import { useEffect, useRef, useMemo, useState } from "react";
+import { useEffect, useRef, useMemo, useState, useCallback } from "react";
 
-const ButtonsGroup = ({ children, reference, style = "" }) => {
-  const styleIsString = typeof style === "string" ? true : false;
-
+const ButtonsGroup = ({
+  children,
+  reference = null,
+  classStyle = "",
+  objectStyle = {},
+}) => {
+  /*
+   * TODO: Move this component to the folder of src/common
+   */
   return (
-    <div
-      ref={reference}
-      className={styleIsString ? style : ""}
-      style={typeof style === "object" ? style : {}}
-    >
+    <div ref={reference} className={classStyle} style={objectStyle}>
       {children}
     </div>
   );
@@ -23,25 +25,34 @@ const ButtonsGroup = ({ children, reference, style = "" }) => {
 
 const Button = ({ children, onClickCallback = () => {} }) => {
   /*
-   * TODO: Add the functionality of editing the additional request of an order upon
-   * clicking the button
+   * TODO: Move this component to the folder of src/common
    */
   return <button onClick={onClickCallback}>{children}</button>;
 };
 
 const AdditionalRequest = ({ additionalReq = "" }) => {
+  /*
+   * TODO: Add a callback to send a request to backend to update the additional request
+   * of an order
+   */
   const elementRef = useRef(null);
   const buttonGroupElementRef = useRef(null);
-  const [editingAdditionalRequest, setEditingAdditionalRequest] =
-    useState(false);
-  const [editingAddress, setEditingAddress] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [additionalRequest, setAdditionalRequest] = useState(additionalReq);
 
-  const displayEditButton = () => {
+  const displayEditButton = useCallback(() => {
     buttonGroupElementRef.current.classList.remove("hidden");
-  };
-  const hideEditButton = () => {
+  }, [buttonGroupElementRef.current]);
+  const hideEditButton = useCallback(() => {
     buttonGroupElementRef.current.classList.add("hidden");
-  };
+  }, [buttonGroupElementRef.current]);
+
+  const handleEditClick = useCallback(() => {
+    setEditing((prev) => !prev);
+  }, []);
+  const handleAdditionalRequestChange = useCallback((event) => {
+    setAdditionalRequest(event.target.value);
+  }, []);
 
   useEffect(() => {
     const referenceCopy = elementRef.current;
@@ -52,7 +63,7 @@ const AdditionalRequest = ({ additionalReq = "" }) => {
       referenceCopy.removeEventListener("mouseover", displayEditButton);
       referenceCopy.removeEventListener("mouseout", hideEditButton);
     };
-  });
+  }, []);
 
   return (
     <div className="mt-7 divide-y divide-slate-300">
@@ -64,21 +75,30 @@ const AdditionalRequest = ({ additionalReq = "" }) => {
           <p className="text-stone-600">Additional Request</p>
           <ButtonsGroup
             reference={buttonGroupElementRef}
-            style={
+            classStyle={
               "absolute top-[0%] my-auto text-center right-[0%] flex items-center gap-2 hidden"
             }
           >
-            <Button>
+            <Button onClickCallback={handleEditClick}>
               <img src={edit} className="w-6 h-6" />
             </Button>
           </ButtonsGroup>
         </div>
-        {additionalReq ? (
-          <div className="mt-3">{additionalReq}</div>
-        ) : (
+        {!editing && additionalRequest && (
+          <div className="mt-3">{additionalRequest}</div>
+        )}
+        {!editing && !additionalRequest && (
           <div className="mt-3 text-stone-500">
             You haven't provided any additional request for an intermediary
           </div>
+        )}
+        {editing && (
+          <textarea
+            className="w-full border border-slate-500 rounded-lg p-2 mt-3"
+            style={{ resize: "none" }}
+            onChange={handleAdditionalRequestChange}
+            value={additionalRequest}
+          ></textarea>
         )}
       </div>
     </div>
