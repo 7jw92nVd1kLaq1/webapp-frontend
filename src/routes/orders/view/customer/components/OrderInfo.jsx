@@ -5,20 +5,46 @@ import {
 } from "@/utils/etc";
 
 import edit from "@/assets/edit_black.svg";
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 
-const HoverAppearButtonsGroup = ({ children, reference }) => {
+const ButtonsGroup = ({ children, reference, style = "" }) => {
+  const styleIsString = typeof style === "string" ? true : false;
+
+  return (
+    <div
+      ref={reference}
+      className={styleIsString ? style : ""}
+      style={typeof style === "object" ? style : {}}
+    >
+      {children}
+    </div>
+  );
+};
+
+const Button = ({ children, onClickCallback = () => {} }) => {
+  /*
+   * TODO: Add the functionality of editing the additional request of an order upon
+   * clicking the button
+   */
+  return <button onClick={onClickCallback}>{children}</button>;
+};
+
+const AdditionalRequest = ({ additionalReq = "" }) => {
   const elementRef = useRef(null);
+  const buttonGroupElementRef = useRef(null);
+  const [editingAdditionalRequest, setEditingAdditionalRequest] =
+    useState(false);
+  const [editingAddress, setEditingAddress] = useState(false);
 
   const displayEditButton = () => {
-    elementRef.current.classList.remove("hidden");
+    buttonGroupElementRef.current.classList.remove("hidden");
   };
   const hideEditButton = () => {
-    elementRef.current.classList.add("hidden");
+    buttonGroupElementRef.current.classList.add("hidden");
   };
 
   useEffect(() => {
-    const referenceCopy = reference.current;
+    const referenceCopy = elementRef.current;
     referenceCopy.addEventListener("mouseover", displayEditButton);
     referenceCopy.addEventListener("mouseout", hideEditButton);
 
@@ -29,24 +55,33 @@ const HoverAppearButtonsGroup = ({ children, reference }) => {
   });
 
   return (
-    <div
-      ref={elementRef}
-      className="absolute top-[0%] my-auto text-center right-[0%] flex items-center gap-2 hidden"
-    >
-      {children}
+    <div className="mt-7 divide-y divide-slate-300">
+      <div
+        className="shadow-md rounded-2xl border border-slate-300 p-4"
+        ref={elementRef}
+      >
+        <div className="relative">
+          <p className="text-stone-600">Additional Request</p>
+          <ButtonsGroup
+            reference={buttonGroupElementRef}
+            style={
+              "absolute top-[0%] my-auto text-center right-[0%] flex items-center gap-2 hidden"
+            }
+          >
+            <Button>
+              <img src={edit} className="w-6 h-6" />
+            </Button>
+          </ButtonsGroup>
+        </div>
+        {additionalReq ? (
+          <div className="mt-3">{additionalReq}</div>
+        ) : (
+          <div className="mt-3 text-stone-500">
+            You haven't provided any additional request for an intermediary
+          </div>
+        )}
+      </div>
     </div>
-  );
-};
-
-const EditButton = () => {
-  /*
-   * TODO: Add the functionality of editing the additional request of an order upon
-   * clicking the button
-   */
-  return (
-    <button>
-      <img src={edit} className="w-6 h-6" />
-    </button>
   );
 };
 
@@ -57,7 +92,6 @@ export const OrderInfo = ({
   additionalReq,
   shippingAddr,
 }) => {
-  const elementRef = useRef(null);
   const dateInString = useMemo(
     () => formatDateStringMMDDYYYY(new Date(createdDate)),
     [createdDate]
@@ -82,26 +116,7 @@ export const OrderInfo = ({
           </div>
         </div>
       </div>
-      <div className="mt-7 divide-y divide-slate-300">
-        <div
-          className="shadow-md rounded-2xl border border-slate-300 p-4"
-          ref={elementRef}
-        >
-          <div className="relative">
-            <p className="text-stone-600">Additional Request</p>
-            <HoverAppearButtonsGroup reference={elementRef}>
-              <EditButton />
-            </HoverAppearButtonsGroup>
-          </div>
-          {additionalReq ? (
-            <div className="mt-3">{additionalReq}</div>
-          ) : (
-            <div className="mt-3 text-stone-500">
-              You haven't provided any additional request for an intermediary
-            </div>
-          )}
-        </div>
-      </div>
+      <AdditionalRequest additionalReq={additionalReq} />
       <div className="mt-7 divide-y divide-slate-300">
         <div className="shadow-md rounded-2xl border border-slate-300 p-4">
           <p className="text-stone-600">Shipping Address</p>
