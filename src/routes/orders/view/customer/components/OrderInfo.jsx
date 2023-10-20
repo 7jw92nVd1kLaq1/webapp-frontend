@@ -1,11 +1,12 @@
+import { useEffect, useRef, useMemo, useState, useCallback } from "react";
+
 import {
   formatDateStringMMDDYYYY,
   shortenProductName,
   stringifyOptions,
 } from "@/utils/etc";
-
 import edit from "@/assets/edit_black.svg";
-import { useEffect, useRef, useMemo, useState, useCallback } from "react";
+import { useSimpleAPICall } from "@/hooks/useSimpleAPICall";
 
 const ButtonsGroup = ({
   children,
@@ -14,7 +15,7 @@ const ButtonsGroup = ({
   objectStyle = {},
 }) => {
   /*
-   * TODO: Move this component to the folder of src/common
+   * TODO: Move this component to the folder of src/components
    */
   return (
     <div ref={reference} className={classStyle} style={objectStyle}>
@@ -23,11 +24,24 @@ const ButtonsGroup = ({
   );
 };
 
-const Button = ({ children, onClickCallback = () => {} }) => {
+const Button = ({
+  children,
+  onClickCallback = () => {},
+  classStyle = "",
+  objectStyle = {},
+}) => {
   /*
-   * TODO: Move this component to the folder of src/common
+   * TODO: Move this component to the folder of src/components
    */
-  return <button onClick={onClickCallback}>{children}</button>;
+  return (
+    <button
+      onClick={onClickCallback}
+      className={classStyle}
+      style={objectStyle}
+    >
+      {children}
+    </button>
+  );
 };
 
 const AdditionalRequest = ({ additionalReq = "" }) => {
@@ -47,12 +61,12 @@ const AdditionalRequest = ({ additionalReq = "" }) => {
     buttonGroupElementRef.current.classList.add("hidden");
   }, [buttonGroupElementRef.current]);
 
-  const handleEditClick = useCallback(() => {
+  const handleEditClick = () => {
     setEditing((prev) => !prev);
-  }, []);
-  const handleAdditionalRequestChange = useCallback((event) => {
+  };
+  const handleAdditionalRequestChange = (event) => {
     setAdditionalRequest(event.target.value);
-  }, []);
+  };
 
   useEffect(() => {
     const referenceCopy = elementRef.current;
@@ -105,6 +119,92 @@ const AdditionalRequest = ({ additionalReq = "" }) => {
   );
 };
 
+const AddressForm = ({ address, setOrderAddress }) => {
+  const [addressCopy, setAddressCopy] = useState(address);
+  const {
+    responseData,
+    makeAPICall,
+    isLoading,
+    responseStatusCode,
+    callCount,
+  } = useSimpleAPICall();
+  const access_token = useSelector((state) => state.userSession.access_token);
+  const order = useSelector((state) => state.viewOrderAsCustomer.order);
+
+  const submitAddress = async () => {
+    const addressKeys = Object.keys(address).sort();
+    const addressCopyKeys = Object.keys(addressCopy).sort();
+    const url = "";
+    const fetchOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`,
+      },
+    };
+  };
+};
+
+const Address = ({ address }) => {
+  const elementRef = useRef(null);
+  const buttonGroupElementRef = useRef(null);
+  const [editing, setEditing] = useState(false);
+  const [orderAddress, setOrderAddress] = useState(address);
+
+  const handleEditClick = () => {
+    setEditing((prev) => !prev);
+  };
+
+  const displayEditButton = useCallback(() => {
+    buttonGroupElementRef.current.classList.remove("hidden");
+  }, [buttonGroupElementRef.current]);
+  const hideEditButton = useCallback(() => {
+    buttonGroupElementRef.current.classList.add("hidden");
+  }, [buttonGroupElementRef.current]);
+
+  useEffect(() => {
+    const referenceCopy = elementRef.current;
+    referenceCopy.addEventListener("mouseover", displayEditButton);
+    referenceCopy.addEventListener("mouseout", hideEditButton);
+
+    return () => {
+      referenceCopy.removeEventListener("mouseover", displayEditButton);
+      referenceCopy.removeEventListener("mouseout", hideEditButton);
+    };
+  }, []);
+
+  return (
+    <div className="mt-7 divide-y divide-slate-300">
+      <div
+        className="shadow-md rounded-2xl border border-slate-300 p-4"
+        ref={elementRef}
+      >
+        <div className="relative">
+          <p className="text-stone-600">Shipping Address</p>
+          <ButtonsGroup
+            reference={buttonGroupElementRef}
+            classStyle={
+              "absolute top-[0%] my-auto text-center right-[0%] flex items-center gap-2 hidden"
+            }
+          >
+            <Button onClickCallback={handleEditClick}>
+              <img src={edit} className="w-6 h-6" />
+            </Button>
+          </ButtonsGroup>
+        </div>
+        <div className="mt-3">
+          <p>{orderAddress.name}</p>
+          <p>{orderAddress.address1}</p>
+          <p>{orderAddress.city}</p>
+          <p>{orderAddress.state}</p>
+          <p>{orderAddress.zipcode}</p>
+          <p>{orderAddress.country}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const OrderInfo = ({
   orderId,
   cryptocurrencyTicker,
@@ -137,19 +237,7 @@ export const OrderInfo = ({
         </div>
       </div>
       <AdditionalRequest additionalReq={additionalReq} />
-      <div className="mt-7 divide-y divide-slate-300">
-        <div className="shadow-md rounded-2xl border border-slate-300 p-4">
-          <p className="text-stone-600">Shipping Address</p>
-          <div className="mt-3">
-            <p>{shippingAddr.name}</p>
-            <p>{shippingAddr.address1}</p>
-            <p>{shippingAddr.city}</p>
-            <p>{shippingAddr.state}</p>
-            <p>{shippingAddr.zipcode}</p>
-            <p>{shippingAddr.country}</p>
-          </div>
-        </div>
-      </div>
+      <Address address={shippingAddr} />
     </div>
   );
 };
