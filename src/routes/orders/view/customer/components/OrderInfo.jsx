@@ -1,12 +1,14 @@
 import { useEffect, useRef, useMemo, useState, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import Modal from "@/components/Modal";
+import { backendURL } from "@/constants";
 import {
   formatDateStringMMDDYYYY,
   shortenProductName,
   stringifyOptions,
 } from "@/utils/etc";
+import { getCSRFToken } from "@/utils/cookie";
 import edit from "@/assets/edit_black.svg";
 import close from "@/assets/close.svg";
 
@@ -57,15 +59,183 @@ const Button = ({
   );
 };
 
+const AdditionalRequestFormSubmitStatus = ({
+  isLoading,
+  responseStatusCode,
+  additionalReqFormError,
+  responseData,
+}) => {
+  if (isLoading) {
+    return (
+      <div className="mt-16 hidden lg:flex flex-col items-center gap-8">
+        <WaitingCircle numbers={100} unit={"px"} />
+        <div className="gap-1 flex flex-col items-center font-semibold text-[20px]">
+          <p>Additional Request</p>
+          <p>Change Requesting</p>
+        </div>
+      </div>
+    );
+  } else {
+    if (responseStatusCode == 0) {
+      if (additionalReqFormError)
+        return (
+          <div className="mt-16 hidden lg:flex flex-col items-center gap-8">
+            <FailureCircle numbers={100} unit={"px"} />
+            <div className="gap-1 flex flex-col items-center font-semibold text-red-600 text-[20px]">
+              <p className="w-1/2 text-[16px]">{additionalReqFormError}</p>
+            </div>
+          </div>
+        );
+      return (
+        <div className="mt-10 hidden lg:flex flex-col gap-1">
+          <p className="text-[20px]">Change</p>
+          <p className="text-[20px]">Additional Request</p>
+        </div>
+      );
+    } else if (responseStatusCode == 200) {
+      return (
+        <div className="mt-16 hidden lg:flex flex-col items-center gap-8">
+          <CompleteCircle numbers={100} unit={"px"} />
+          <div className="text-green-600 gap-1 flex flex-col items-center font-semibold text-[20px]">
+            <p>Additional Request</p>
+            <p>Changed</p>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="mt-16 hidden lg:flex flex-col items-center gap-8">
+          <FailureCircle numbers={100} unit={"px"} />
+          <div className="gap-1 flex flex-col items-center font-semibold text-red-600 text-[20px]">
+            <p>Additional Request</p>
+            <p>Change Failed</p>
+          </div>
+        </div>
+      );
+    }
+  }
+};
+
+const AdditionalRequestForm = ({ additionalReq, toggleModalCallback }) => {
+  const dispatch = useDispatch();
+  const csrfToken = useRef(null);
+  const [additionalReqCopy, setAdditionalReqCopy] = useState(additionalReq);
+  const [additionalReqFormError, setAdditionalReqFormError] = useState(null);
+  const {
+    responseData,
+    makeAPICall,
+    isLoading,
+    responseStatusCode,
+    callCount,
+    error,
+  } = useSimpleAPICall();
+  const access_token = useSelector((state) => state.userSession.access_token);
+  const order = useSelector((state) => state.viewOrderAsCustomer.order);
+
+  const checkIfAdditionalReqChanged = () => {
+    if (additionalReqCopy === additionalReq) return false;
+    return true;
+  };
+
+  const handleAdditionalReqChange = (event) => {
+    setAdditionalReqCopy(event.target.value);
+  };
+
+  const submitAdditionalReq = async () => {
+    if (!checkIfAdditionalReqChanged()) {
+      setAdditionalReqFormError("You haven't changed the additional request.");
+      return;
+    }
+    const url = `${backendURL}/api/modify-order/`;
+    const fetchOptions = {
+      method: "PATCH",
+      headers: {
+        "X-CSRFToken": csrfToken.current,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`,
+      },
+      body: JSON.stringify({
+        additional_request: additionalReqCopy,
+        for: "update_additional_info",
+        order_id: order.url_id,
+      }),
+    };
+
+    await makeAPICall(url, fetchOptions);
+  };
+
+  useEffect(() => {
+    csrfToken.current = getCSRFToken();
+  }, []);
+
+  useEffect(() => {
+    if (!callCount) return;
+    if (responseStatusCode == 200)
+      dispatch(setOrder({ ...order, additional_request: additionalReqCopy }));
+  }, [callCount]);
+
+  return (
+    <div className="flex flex-col lg:flex-row p-10 text-[16px] w-[500px] lg:w-[800px] bg-white rounded-2xl h-[70%] overflow-hidden gap-3 relative">
+      <button className="absolute top-[10px] right-[10px]">
+        <img
+          src={close}
+          className="w-8 h-8 cursor-pointer"
+          onClick={toggleModalCallback}
+        />
+      </button>
+      <div className="lg:w-1/2">
+        <h1 className="text-[24px] lg:text-[28px] font-semibold text-left lg:w-1/2">
+          Additional Request
+        </h1>
+        <h1 className="text-[24px] lg:text-[28px] font-semibold text-left lg:w-1/2">
+          Change
+        </h1>
+        <AdditionalRequestFormSubmitStatus
+          isLoading={isLoading}
+          additionalReqFormError={additionalReqFormError}
+          responseStatusCode={responseStatusCode}
+          responseData={responseData}
+        />
+      </div>
+      <div className="overflow-auto grow">
+        <form
+          className="flex flex-col h-full"
+          onSubmit={(event) => {
+            event.preventDefault();
+            submitAdditionalReq();
+          }}
+        >
+          <label
+            htmlFor="additional_request"
+            className="block text-gray-700 mt-4 lg:mt-0"
+          >
+            Additional Request
+          </label>
+          <textarea
+            name="additional_request"
+            id="additional_request"
+            value={additionalReqCopy}
+            className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2 grow"
+            placeholder="Additional Request"
+            style={{ resize: "none" }}
+            onChange={handleAdditionalReqChange}
+          />
+          <button
+            className="w-fit mt-5 bg-sky-600 text-white p-3 rounded-lg"
+            type="submit"
+          >
+            Submit
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const AdditionalRequest = ({ additionalReq = "" }) => {
-  /*
-   * TODO: Add a callback to send a request to backend to update the additional request
-   * of an order
-   */
   const elementRef = useRef(null);
   const buttonGroupElementRef = useRef(null);
-  const [editing, setEditing] = useState(false);
-  const [additionalRequest, setAdditionalRequest] = useState(additionalReq);
+  const { isModalOpen, toggleModal } = useIsModalOpen();
 
   const displayEditButton = useCallback(() => {
     buttonGroupElementRef.current.classList.remove("hidden");
@@ -75,10 +245,7 @@ const AdditionalRequest = ({ additionalReq = "" }) => {
   }, [buttonGroupElementRef.current]);
 
   const handleEditClick = () => {
-    setEditing((prev) => !prev);
-  };
-  const handleAdditionalRequestChange = (event) => {
-    setAdditionalRequest(event.target.value);
+    toggleModal();
   };
 
   useEffect(() => {
@@ -94,6 +261,12 @@ const AdditionalRequest = ({ additionalReq = "" }) => {
 
   return (
     <div className="mt-7 divide-y divide-slate-300">
+      <Modal isModalOpen={isModalOpen}>
+        <AdditionalRequestForm
+          additionalReq={additionalReq}
+          toggleModalCallback={toggleModal}
+        />
+      </Modal>
       <div
         className="shadow-md rounded-2xl border border-slate-300 p-4"
         ref={elementRef}
@@ -111,21 +284,13 @@ const AdditionalRequest = ({ additionalReq = "" }) => {
             </Button>
           </ButtonsGroup>
         </div>
-        {!editing && additionalRequest && (
-          <div className="mt-3">{additionalRequest}</div>
+        {additionalReq && (
+          <div className="mt-3 break-words">{additionalReq}</div>
         )}
-        {!editing && !additionalRequest && (
+        {!additionalReq && (
           <div className="mt-3 text-stone-500">
             You haven't provided any additional request for an intermediary
           </div>
-        )}
-        {editing && (
-          <textarea
-            className="w-full border border-slate-500 rounded-lg p-2 mt-3"
-            style={{ resize: "none" }}
-            onChange={handleAdditionalRequestChange}
-            value={additionalRequest}
-          ></textarea>
         )}
       </div>
     </div>
@@ -135,6 +300,7 @@ const AdditionalRequest = ({ additionalReq = "" }) => {
 const AddressFormSubmitStatus = ({
   isLoading,
   responseStatusCode,
+  addressFormError,
   responseData,
 }) => {
   if (isLoading) {
@@ -149,6 +315,15 @@ const AddressFormSubmitStatus = ({
     );
   } else {
     if (responseStatusCode == 0) {
+      if (addressFormError)
+        return (
+          <div className="mt-16 hidden lg:flex flex-col items-center gap-8">
+            <FailureCircle numbers={100} unit={"px"} />
+            <div className="gap-1 flex flex-col items-center font-semibold text-red-600 text-[20px]">
+              <p className="w-1/2 text-[16px]">{addressFormError}</p>
+            </div>
+          </div>
+        );
       return (
         <div className="mt-10 hidden lg:flex flex-col gap-1">
           <p className="text-[20px]">Change Your</p>
@@ -178,7 +353,9 @@ const AddressFormSubmitStatus = ({
   }
 };
 
-const AddressForm = ({ address, setOrderAddress, toggleModalCallback }) => {
+const AddressForm = ({ address, toggleModalCallback }) => {
+  const dispatch = useDispatch();
+  const csrfToken = useRef(null);
   const [addressCopy, setAddressCopy] = useState(address);
   const [addressFormError, setAddressFormError] = useState(null);
   const {
@@ -196,7 +373,8 @@ const AddressForm = ({ address, setOrderAddress, toggleModalCallback }) => {
     const addressKeys = Object.keys(addressCopy).sort();
 
     for (const key of addressKeys) {
-      if (key != "address2" && !addressKeys[key].trim()) {
+      console.log(key);
+      if (key != "address2" && !addressCopy[key].trim()) {
         throw new Error(
           `The field ${key} is required. Please provide the value for the key.`
         );
@@ -222,18 +400,15 @@ const AddressForm = ({ address, setOrderAddress, toggleModalCallback }) => {
         "The length of the address and the addressCopy are not equal. Please" +
           " refresh the page and try again."
       );
-    } else if (
-      addressKeys.length !== validAddressFieldNames.length ||
-      addressCopyKeys.length !== validAddressFieldNames.length
-    ) {
+    } else if (addressCopyKeys.length !== validAddressFieldNames.length) {
       throw new Error(
-        "The length of the address and the addressCopy are not equal to the" +
+        "The length of the addressCopy are not equal to the" +
           " length of the required address field names. Please refresh the page."
       );
     }
 
     for (const key of validAddressFieldNames) {
-      if (!(addressKeys.includes(key) && addressCopyKeys.includes(key))) {
+      if (!addressCopyKeys.includes(key)) {
         throw new Error(
           `The field ${key} is not found in the form of address. Please` +
             ` refresh the page and try again.`
@@ -252,14 +427,9 @@ const AddressForm = ({ address, setOrderAddress, toggleModalCallback }) => {
   };
 
   const submitAddress = async () => {
-    /*
-     * TODO:
-     * 1. Specify an address to an endpoint of backend to update the address
-     * 2. Turn the content of the address form into a JSON object
-     */
     try {
       checkIfRequiredFieldsMissing();
-      if (!checkIfAddressChanged()) {
+      if (checkIfAddressChanged()) {
         setAddressFormError("You haven't changed any field of the address.");
         return;
       }
@@ -267,14 +437,21 @@ const AddressForm = ({ address, setOrderAddress, toggleModalCallback }) => {
       setAddressFormError(error.message);
       return;
     }
-    const url = "";
+    const url = `${backendURL}/api/modify-order/`;
     const fetchOptions = {
-      method: "POST",
+      method: "PATCH",
       headers: {
+        "X-CSRFToken": csrfToken.current,
         "Content-Type": "application/json",
         Authorization: `Bearer ${access_token}`,
       },
+      body: JSON.stringify({
+        address: addressCopy,
+        for: "update_additional_info",
+        order_id: order.url_id,
+      }),
     };
+    console.log("Making API Call");
     await makeAPICall(url, fetchOptions);
   };
 
@@ -282,6 +459,21 @@ const AddressForm = ({ address, setOrderAddress, toggleModalCallback }) => {
     const id = event.target.id;
     setAddressCopy((prev) => ({ ...prev, [id]: event.target.value }));
   };
+
+  const getCSRFTokenAsync = async () => {
+    const token = await getCSRFToken();
+    csrfToken.current = token;
+  };
+
+  useEffect(() => {
+    getCSRFTokenAsync();
+  }, []);
+
+  useEffect(() => {
+    if (!callCount) return;
+    if (responseStatusCode == 200)
+      dispatch(setOrder({ ...order, address: { address: addressCopy } }));
+  }, [callCount]);
 
   return (
     <div className="flex flex-col lg:flex-row p-10 text-[16px] w-[500px] lg:w-[800px] bg-white rounded-2xl h-[70%] overflow-hidden gap-3 relative">
@@ -298,98 +490,110 @@ const AddressForm = ({ address, setOrderAddress, toggleModalCallback }) => {
         </h1>
         <AddressFormSubmitStatus
           isLoading={isLoading}
+          addressFormError={addressFormError}
           responseStatusCode={responseStatusCode}
           responseData={responseData}
         />
       </div>
       <div className="overflow-auto grow">
-        <label htmlFor="name" className="block text-gray-700 mt-4 lg:mt-0">
-          Name
-        </label>
-        <input
-          name="name"
-          id="name"
-          value={addressCopy.name}
-          className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
-          placeholder="Name"
-          onChange={handleAddressChange}
-        />
-        <label htmlFor="address1" className="block text-gray-700 mt-4">
-          Address
-        </label>
-        <input
-          name="address1"
-          id="address1"
-          value={addressCopy.address1}
-          className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
-          placeholder="Address"
-          onChange={handleAddressChange}
-        />
-        <label htmlFor="address2" className="block mt-4 text-gray-700">
-          Address 2
-        </label>
-        <input
-          name="address2"
-          id="address2"
-          value={addressCopy.address2}
-          className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
-          placeholder="(Optional)"
-          onChange={handleAddressChange}
-        />
-        <label htmlFor="city" className="block mt-4 text-gray-700">
-          City
-        </label>
-        <input
-          name="city"
-          id="city"
-          value={addressCopy.city}
-          className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
-          placeholder="City"
-          onChange={handleAddressChange}
-        />
-        <label htmlFor="state" className="block mt-4 text-gray-700">
-          State
-        </label>
-        <input
-          name="state"
-          id="state"
-          value={addressCopy.state}
-          className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
-          placeholder="State"
-          onChange={handleAddressChange}
-        />
-        <label htmlFor="zipcode" className="block mt-4 text-gray-700">
-          Zipcode
-        </label>
-        <input
-          name="zipcode"
-          id="zipcode"
-          value={addressCopy.zipcode}
-          className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
-          placeholder="Zipcode"
-          onChange={handleAddressChange}
-        />
-        <label htmlFor="country" className="block mt-4 text-gray-700">
-          Country
-        </label>
-        <CountryDropdown
-          name="country"
-          id="country"
-          value={addressCopy.country}
-          classes={
-            "block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
-          }
-          valueType="short"
-          onChange={(val) =>
-            setAddressCopy((prev) => ({ ...prev, country: val }))
-          }
-        />
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            submitAddress();
+          }}
+        >
+          <label htmlFor="name" className="block text-gray-700 mt-4 lg:mt-0">
+            Name
+          </label>
+          <input
+            name="name"
+            id="name"
+            value={addressCopy.name}
+            className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
+            placeholder="Name"
+            onChange={handleAddressChange}
+          />
+          <label htmlFor="address1" className="block text-gray-700 mt-4">
+            Address
+          </label>
+          <input
+            name="address1"
+            id="address1"
+            value={addressCopy.address1}
+            className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
+            placeholder="Address"
+            onChange={handleAddressChange}
+          />
+          <label htmlFor="address2" className="block mt-4 text-gray-700">
+            Address 2
+          </label>
+          <input
+            name="address2"
+            id="address2"
+            value={addressCopy.address2}
+            className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
+            placeholder="(Optional)"
+            onChange={handleAddressChange}
+          />
+          <label htmlFor="city" className="block mt-4 text-gray-700">
+            City
+          </label>
+          <input
+            name="city"
+            id="city"
+            value={addressCopy.city}
+            className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
+            placeholder="City"
+            onChange={handleAddressChange}
+          />
+          <label htmlFor="state" className="block mt-4 text-gray-700">
+            State
+          </label>
+          <input
+            name="state"
+            id="state"
+            value={addressCopy.state}
+            className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
+            placeholder="State"
+            onChange={handleAddressChange}
+          />
+          <label htmlFor="zipcode" className="block mt-4 text-gray-700">
+            Zipcode
+          </label>
+          <input
+            name="zipcode"
+            id="zipcode"
+            value={addressCopy.zipcode}
+            className="block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
+            placeholder="Zipcode"
+            onChange={handleAddressChange}
+          />
+          <label htmlFor="country" className="block mt-4 text-gray-700">
+            Country
+          </label>
+          <CountryDropdown
+            name="country"
+            id="country"
+            value={addressCopy.country}
+            classes={
+              "block px-4 py-4 border border-slate-500 w-full font-light rounded text-black mt-2"
+            }
+            valueType="short"
+            onChange={(val) =>
+              setAddressCopy((prev) => ({ ...prev, country: val }))
+            }
+          />
+          <button className="mt-10 bg-sky-600 text-white p-3">Submit</button>
+        </form>
       </div>
     </div>
   );
 };
 
 const AddressDisplay = ({ orderAddress }) => {
+  /*
+   * TODO: Improve the looks of the address display aesthetically and informatively
+   */
   return (
     <div>
       <p>{orderAddress.name}</p>
@@ -405,7 +609,6 @@ const AddressDisplay = ({ orderAddress }) => {
 const Address = ({ address }) => {
   const elementRef = useRef(null);
   const buttonGroupElementRef = useRef(null);
-  const [orderAddress, setOrderAddress] = useState(address);
   const { isModalOpen, toggleModal } = useIsModalOpen();
 
   const handleEditClick = () => {
@@ -433,11 +636,7 @@ const Address = ({ address }) => {
   return (
     <div className="mt-7 divide-y divide-slate-300">
       <Modal isModalOpen={isModalOpen}>
-        <AddressForm
-          address={orderAddress}
-          setOrderAddress={setOrderAddress}
-          toggleModalCallback={toggleModal}
-        />
+        <AddressForm address={address} toggleModalCallback={toggleModal} />
       </Modal>
       <div
         className="shadow-md rounded-2xl border border-slate-300 p-4"
@@ -457,7 +656,7 @@ const Address = ({ address }) => {
           </ButtonsGroup>
         </div>
         <div className="mt-3">
-          <AddressDisplay orderAddress={orderAddress} />
+          <AddressDisplay orderAddress={address} />
         </div>
       </div>
     </div>
