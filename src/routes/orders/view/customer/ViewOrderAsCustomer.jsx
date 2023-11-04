@@ -185,6 +185,8 @@ export default function ViewOrderAsCustomer() {
     await makeAPICall(url, fetchOption);
   };
 
+  console.log(order);
+
   useEffect(() => {
     requestOrderData();
   }, []);
@@ -253,6 +255,7 @@ export default function ViewOrderAsCustomer() {
                 createdDate={order.created_at}
                 additionalReq={order.additional_request}
                 shippingAddr={order.address.address}
+                status={order.status}
               />
               <OrderItemsInfo items={order.order_items} />
             </div>

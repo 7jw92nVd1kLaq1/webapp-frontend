@@ -9,5 +9,9 @@ export const useIsModalOpen = () => {
     setIsModalOpen(false);
   };
 
-  return { isModalOpen, openModal, closeModal };
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
+  return { isModalOpen, openModal, closeModal, toggleModal };
 };

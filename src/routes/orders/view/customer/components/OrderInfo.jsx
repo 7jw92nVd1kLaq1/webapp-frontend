@@ -232,6 +232,26 @@ const AdditionalRequestForm = ({ additionalReq, toggleModalCallback }) => {
   );
 };
 
+const ImmutableAdditionalRequest = ({ additionalReq = "" }) => {
+  return (
+    <div className="mt-7 divide-y divide-slate-300">
+      <div className="shadow-md rounded-2xl border border-slate-300 p-4">
+        <div className="relative">
+          <p className="text-stone-600">Additional Request</p>
+        </div>
+        {additionalReq && (
+          <div className="mt-3 break-words">{additionalReq}</div>
+        )}
+        {!additionalReq && (
+          <div className="mt-3 text-stone-500">
+            You haven't provided any additional request for an intermediary
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const AdditionalRequest = ({ additionalReq = "" }) => {
   const elementRef = useRef(null);
   const buttonGroupElementRef = useRef(null);
@@ -595,13 +615,28 @@ const AddressDisplay = ({ orderAddress }) => {
    * TODO: Improve the looks of the address display aesthetically and informatively
    */
   return (
-    <div>
+    <div className="break-words">
       <p>{orderAddress.name}</p>
       <p>{orderAddress.address1}</p>
       <p>{orderAddress.city}</p>
       <p>{orderAddress.state}</p>
       <p>{orderAddress.zipcode}</p>
       <p>{orderAddress.country}</p>
+    </div>
+  );
+};
+
+const ImmutableAddress = ({ address }) => {
+  return (
+    <div className="mt-7 divide-y divide-slate-300">
+      <div className="shadow-md rounded-2xl border border-slate-300 p-4">
+        <div className="relative">
+          <p className="text-stone-600">Shipping Address</p>
+        </div>
+        <div className="mt-3">
+          <AddressDisplay orderAddress={address} />
+        </div>
+      </div>
     </div>
   );
 };
@@ -669,6 +704,7 @@ export const OrderInfo = ({
   createdDate,
   additionalReq,
   shippingAddr,
+  status,
 }) => {
   const dateInString = useMemo(
     () => formatDateStringMMDDYYYY(new Date(createdDate)),
@@ -694,8 +730,16 @@ export const OrderInfo = ({
           </div>
         </div>
       </div>
-      <AdditionalRequest additionalReq={additionalReq} />
-      <Address address={shippingAddr} />
+      {status === 1 ? (
+        <AdditionalRequest additionalReq={additionalReq} />
+      ) : (
+        <ImmutableAdditionalRequest additionalReq={additionalReq} />
+      )}
+      {status === 1 ? (
+        <Address address={shippingAddr} />
+      ) : (
+        <ImmutableAddress address={shippingAddr} />
+      )}
     </div>
   );
 };

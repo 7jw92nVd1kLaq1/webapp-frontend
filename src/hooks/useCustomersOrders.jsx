@@ -60,8 +60,8 @@ const useCustomersOrders = () => {
           entry.url_id,
           entry.order_items,
           entry.payment.payment.additional_cost,
-          entry.payment.payment.order_payment_balance.payment_method.name,
-          entry.payment.payment.order_payment_balance.payment_method.rate
+          entry.payment.payment.payment_methods[0].name,
+          entry.payment.payment.payment_methods[0].rate
         );
       }
     }

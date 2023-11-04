@@ -11,22 +11,32 @@ import register from "@/assets/registration.svg";
 import viewOrder from "@/assets/viewOrder.svg";
 
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { setSession } from "@/redux/userSessionSlice";
 
 const NotificationDropDownButton = () => {
+  const currentURL = useLocation();
+  const notificationBoxElement = useRef(null);
+  /*
+   * TODO:
+   * 1. Fetch notifications from backend
+   * 2. Create a component for each notification entry
+   * 3. Create a utility function for generating an URL for each notification
+   * 4. Create a functionality for marking a notification as read when clicking
+   * a notification button by sending a request to backend
+   * 5. Create a functionality for loading notifications whenever the URL changes
+   */
+
   return (
     <button id="notification-menu-icon" className="relative mr-4">
       <img
         src={notification}
         className="w-7 h-7"
         onClick={() => {
-          const element = document.getElementById(
-            "top-nav-notification-dropdown-menu"
-          );
-          element.classList.remove("hidden");
+          const notificationElement = notificationBoxElement.current;
+          notificationElement.classList.remove("hidden");
         }}
       />
 
@@ -35,6 +45,7 @@ const NotificationDropDownButton = () => {
         style={{ top: "180%", right: "-30%" }}
       >
         <div
+          ref={notificationBoxElement}
           id="top-nav-notification-dropdown-menu"
           className="w-full p-6 rounded-md bg-white shadow-lg text-black font-medium divide-y divide-slate-300 hidden"
         ></div>

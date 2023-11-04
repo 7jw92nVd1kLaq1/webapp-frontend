@@ -21,15 +21,17 @@ export const useSimpleAPICall = () => {
       responseStatusCode.current = response.status;
       responseData.current = data;
     } catch (err) {
-      error.current = err;
+      error.current = err.message;
     }
 
     apiCallCount.current++;
     setIsLoading(false);
 
-    // Return the data received and stored in a ref "responseData" in case of a user needing the data,
-    // because of the updated "responseData" being inconsistently available right after the end of
-    // this function.
+    /*
+     * Return the data received and stored in a ref "responseData" in case of a user
+     * needing the data, because of the updated "responseData" being inconsistently
+     * available right after the end of this function.
+     */
     return [responseData.current, responseStatusCode.current];
   };
 

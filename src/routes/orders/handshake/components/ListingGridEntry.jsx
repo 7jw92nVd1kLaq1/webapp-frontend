@@ -14,8 +14,7 @@ const ListingGridEntry = ({ entry }) => {
       : null
   );
 
-  const offered_cryptocurrency =
-    entry.payment.payment.order_payment_balance.payment_method.name;
+  const offered_cryptocurrency = entry.payment.payment.payment_methods[0].name;
 
   const toggleOrderDetail = () => {
     setDetail(entry.url_id);
