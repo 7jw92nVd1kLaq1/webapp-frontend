@@ -38,10 +38,11 @@ const ListAllUserOrdersPaginationBox = ({
 
 export default function ListAllUserOrders() {
   const [currentPage, setCurrentPage] = useState(1);
-  const access_token = useSelector((state) => state.userSession.access_token);
+  let access_token = useSelector((state) => state.userSession.access_token);
 
   const { responseData, makeAPICall, isLoading } = useSimpleAPICall();
   const useEffectAsync = async () => {
+    if (!access_token) access_token = localStorage.getItem("access_token");
     const fetchOptions = {
       method: "GET",
       headers: {
