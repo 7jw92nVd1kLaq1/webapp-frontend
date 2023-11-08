@@ -10,20 +10,14 @@ import { getCSRFToken } from "@/utils/cookie";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-const NotificationEntry = ({
+const NotificationEntryOptionMenu = ({
   id,
-  csrfToken,
-  textContent,
   read,
-  datetimeStr,
+  setRead,
   setCurrentUnreadNotificationsCount,
 }) => {
-  /*
-   * TODO:
-   * 1. Add an element for displaying the date and time of the notification
-   * 2. Redirect to the URL of the notification when clicking a notification
-   */
-  const { responseData, responseStatusCode, callCount, makeAPICall, error } =
+  const csrfToken = useRef(null);
+  const { responseStatusCode, callCount, makeAPICall, error } =
     useSimpleAPICall();
 
   const markNotificationsAsRead = async () => {
@@ -47,13 +41,95 @@ const NotificationEntry = ({
       setCurrentUnreadNotificationsCount((prev) => {
         if (prev > 0) return prev - 1;
       });
+      setRead(true);
     }
   }, [callCount]);
 
+  useEffect(() => {
+    (async () => {
+      csrfToken.current = await getCSRFToken();
+    })();
+  }, []);
+
   return (
-    <div className="p-6 flex items-center hover:bg-slate-100">
+    <div
+      className="absolute flex border border-slate-300 divide-slate-300 divide-x right-[15%] top-[50%] bg-white rounded-xl shadow-lg text-[14px]"
+      style={{
+        transform: "translateY(-50%)",
+      }}
+    >
+      {read ? (
+        <button className="font-medium w-fit grow flex flex-col items-start justify-center p-3">
+          Mark as Unread
+        </button>
+      ) : (
+        <button
+          className="font-medium w-fit grow flex flex-col items-start justify-center p-3"
+          onClick={() => {
+            markNotificationsAsRead();
+          }}
+        >
+          Mark as read
+        </button>
+      )}
+    </div>
+  );
+};
+
+const NotificationEntryOptionButton = ({
+  setOptionsMenuVisible,
+  optionsMenuVisible,
+}) => {
+  return optionsMenuVisible ? (
+    <button
+      className="relative bg-sky-300 rounded-lg"
+      onClick={() => {
+        setOptionsMenuVisible(false);
+      }}
+    >
+      <img src={notificationOptionsIcon} className="w-[24px] h-[24px]" />
+    </button>
+  ) : (
+    <button
+      className="relative rounded-lg"
+      onClick={() => {
+        setOptionsMenuVisible(true);
+      }}
+    >
+      <img src={notificationOptionsIcon} className="w-[24px] h-[24px]" />
+    </button>
+  );
+};
+
+const NotificationEntry = ({
+  id,
+  textContent,
+  read,
+  datetimeStr,
+  setCurrentUnreadNotificationsCount,
+}) => {
+  /*
+   * TODO:
+   * 1. Add an element for displaying the date and time of the notification
+   * 2. Redirect to the URL of the notification when clicking a notification
+   */
+  const [optionsMenuVisible, setOptionsMenuVisible] = useState(false);
+  const [currentRead, setCurrentRead] = useState(read);
+
+  return (
+    <div className="p-6 flex items-center hover:bg-slate-100 relative">
+      {optionsMenuVisible && (
+        <NotificationEntryOptionMenu
+          id={id}
+          read={currentRead}
+          setRead={setCurrentRead}
+          setCurrentUnreadNotificationsCount={
+            setCurrentUnreadNotificationsCount
+          }
+        />
+      )}
       <div className="w-5/6 flex items-center">
-        {read ? (
+        {currentRead ? (
           <div className="p-1 rounded-full w-2/8"></div>
         ) : (
           <div className="p-1 bg-sky-500 rounded-full w-2/8"></div>
@@ -63,9 +139,10 @@ const NotificationEntry = ({
         </div>
       </div>
       <div className="flex justify-end w-1/6">
-        <button>
-          <img src={notificationOptionsIcon} className="w-[24px] h-[24px]" />
-        </button>
+        <NotificationEntryOptionButton
+          setOptionsMenuVisible={setOptionsMenuVisible}
+          optionsMenuVisible={optionsMenuVisible}
+        />
       </div>
     </div>
   );
