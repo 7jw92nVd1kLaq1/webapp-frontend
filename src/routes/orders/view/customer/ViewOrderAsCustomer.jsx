@@ -5,7 +5,6 @@ import notification from "@/assets/notification.svg";
 import backArrow from "@/assets/back_arrow.svg";
 import addIntermediary from "@/assets/add_intermediary.svg";
 import deposit from "@/assets/payment.svg";
-import waiting from "@/assets/waiting.svg";
 import placed from "@/assets/order_placed.svg";
 import shipping from "@/assets/shipping.svg";
 import done from "@/assets/done.svg";
@@ -22,10 +21,10 @@ import { useSimpleAPICall } from "@/hooks/useSimpleAPICall";
 import { setOrder } from "@/redux/viewOrderAsCustomerSlice";
 import { FailureCircle, WaitingCircle } from "@/utils/waitingCircle";
 
-const OrderProgressIndicatorStage = ({ image, name }) => {
+const OrderProgressIndicatorStage = ({ image, name, step }) => {
   return (
     <div className="relative">
-      <div className="w-20 h-20 rounded-full border border-black">
+      <div className="w-20 h-20 rounded-full border border-stone-500 shadow-sm bg-stone-100">
         <img
           src={image}
           className="w-8 w-8 absolute"
@@ -48,12 +47,10 @@ const OrderProgressIndicatorStage = ({ image, name }) => {
 
 const OrderProgressIndicator = () => {
   return (
-    <div className="flex justify-center items-center flex-wrap pb-16 text-[16px]">
+    <div className="flex justify-center items-center flex-wrap pt-10 pb-16 text-[16px] bg-white rounded-xl shadow-lg border border-stone-200">
       <OrderProgressIndicatorStage image={addIntermediary} name={"Add User"} />
       <hr className="w-10 border-black" />
       <OrderProgressIndicatorStage image={deposit} name={"Deposit"} />
-      <hr className="w-10 border-black" />
-      <OrderProgressIndicatorStage image={waiting} name={"Waiting"} />
       <hr className="w-10 border-black" />
       <OrderProgressIndicatorStage image={placed} name={"Order Placed"} />
       <hr className="w-10 border-black" />
@@ -185,8 +182,6 @@ export default function ViewOrderAsCustomer() {
     await makeAPICall(url, fetchOption);
   };
 
-  console.log(order);
-
   useEffect(() => {
     requestOrderData();
   }, []);
@@ -199,15 +194,7 @@ export default function ViewOrderAsCustomer() {
     };
   }, [callCount]);
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <WaitingCircle numbers={100} unit={"px"} />
-      </div>
-    );
-  }
-
-  if (responseStatusCode >= 400) {
+  if (!isLoading && responseStatusCode >= 400) {
     return (
       <div className="flex flex-col items-center justify-center h-96">
         <FailureCircle numbers={100} unit={"px"} />
@@ -229,7 +216,7 @@ export default function ViewOrderAsCustomer() {
           reference={intermediaryChatElement}
           closeCallback={toggleOrderDetail}
         />
-        <div className="px-12 lg:px-16 py-12 bg-white flex flex-col divide-y divide-slate-300 z-10">
+        <div className="px-12 lg:px-16 py-12 bg-stone-100 flex flex-col divide-y divide-slate-300 z-10">
           <div className="flex justify-between items-center pb-4 text-[16px]">
             <div className="flex gap-2 items-center">
               <img src={backArrow} className="block w-8 h-8" />
@@ -241,7 +228,7 @@ export default function ViewOrderAsCustomer() {
             </div>
           </div>
           <div className="xl:flex justify-between items-start py-10 xl:divide-x divide-y xl:divide-y-0 divide-slate-300">
-            <div className="xl:w-3/4 xl:pr-10 divide-y divide-slate-300">
+            <div className="xl:w-3/4 xl:pr-10">
               <OrderProgressIndicator />
               <OrderStageChooser
                 order={order}

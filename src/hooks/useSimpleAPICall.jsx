@@ -16,12 +16,16 @@ export const useSimpleAPICall = () => {
 
     try {
       const response = await fetch(url, fetchOptions);
-      const data = await response.json();
-
       responseStatusCode.current = response.status;
+
+      const data = await response.json();
       responseData.current = data;
     } catch (err) {
-      error.current = err.message;
+      /*
+       * If the error is not a response from the server, then it is a network error.
+       * If the status code is not 200, then it is a server error.
+       */
+      if (responseStatusCode.current != 200) error.current = err.message;
     }
 
     apiCallCount.current++;

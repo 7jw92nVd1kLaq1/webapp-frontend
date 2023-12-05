@@ -45,6 +45,7 @@ export const checkIfLoggedIn = async () => {
   if (doesCookieExist) {
     return redirect("/");
   }
+  return null;
 };
 
 export const logOut = async () => {

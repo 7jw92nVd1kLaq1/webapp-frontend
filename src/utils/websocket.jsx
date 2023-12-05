@@ -22,6 +22,33 @@ export const createCentrifugeClientObj = (token) => {
   return client;
 };
 
+export const subscribeToChannelForAcceptingPaymentInfo = (
+  centrifuge,
+  subToken,
+  callback,
+  orderId
+) => {
+  const username = store.getState().userSession.username;
+  const channelName = `${orderId}#${username}`;
+  const channelNameEncoded = encodeURIComponent(channelName);
+  const sub = centrifuge.newSubscription(channelName, {
+    token: subToken,
+    getToken: function (ctx) {
+      return renewSubscriptionToken(
+        `http://127.0.0.1:8000/api/renew-sub-token/?channel=${channelNameEncoded}`,
+        ctx
+      );
+    },
+  });
+  sub.on("publication", (ctx) => {
+    console.log("Item Received \n\n");
+    console.log(ctx.data);
+    callback(ctx.data.item);
+  });
+
+  return sub;
+};
+
 export const subscribeToChannelForAcceptingItem = (
   centrifuge,
   subToken,

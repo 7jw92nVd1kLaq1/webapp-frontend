@@ -5,24 +5,44 @@ import notificationOptionsIcon from "@/assets/notification_options.svg";
 import { backendURL } from "@/constants";
 import useNotification from "@/hooks/useNotification";
 import { useSimpleAPICall } from "@/hooks/useSimpleAPICall";
+
+import {
+  incrementUnreadCount,
+  decrementUnreadCount,
+  setUnreadCount,
+  setTotalCount,
+  setNotifications,
+} from "@/redux/notificationSlice";
 import { getCSRFToken } from "@/utils/cookie";
+import { generateNotificationURL } from "@/utils/notifications";
 
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useLocation } from "react-router-dom";
 
-const NotificationEntryOptionMenu = ({
-  id,
-  read,
-  setRead,
-  setCurrentUnreadNotificationsCount,
-}) => {
+const NotificationEntryOptionMenu = ({ id, read, setRead }) => {
+  const dispatch = useDispatch();
   const csrfToken = useRef(null);
-  const { responseStatusCode, callCount, makeAPICall, error } =
-    useSimpleAPICall();
+  const {
+    responseStatusCode: unreadResponseStatusCode,
+    callCount: unreadCallCount,
+    makeAPICall: unreadMakeAPICall,
+    error: unreadError,
+  } = useSimpleAPICall();
+  const {
+    responseStatusCode: readResponseStatusCode,
+    callCount: readCallCount,
+    makeAPICall: readMakeAPICall,
+    error: readError,
+  } = useSimpleAPICall();
 
-  const markNotificationsAsRead = async () => {
-    if (read) return;
-    let url = `${backendURL}/api/mark-notification-as-read/`;
+  const toggleNotificationsAsReadStatus = async () => {
+    let url;
+    if (read) {
+      url = `${backendURL}/api/mark-notification-as-unread/`;
+    } else {
+      url = `${backendURL}/api/mark-notification-as-read/`;
+    }
     url += `?id=${id}`;
     const fetchOptions = {
       method: "PATCH",
@@ -32,18 +52,28 @@ const NotificationEntryOptionMenu = ({
         "X-CSRFToken": csrfToken.current,
       },
     };
-    await makeAPICall(url, fetchOptions);
+    if (read) {
+      await unreadMakeAPICall(url, fetchOptions);
+    } else {
+      await readMakeAPICall(url, fetchOptions);
+    }
   };
 
   useEffect(() => {
-    if (callCount <= 0) return;
-    if (responseStatusCode === 200) {
-      setCurrentUnreadNotificationsCount((prev) => {
-        if (prev > 0) return prev - 1;
-      });
+    if (readCallCount <= 0) return;
+    if (readResponseStatusCode === 200) {
+      dispatch(decrementUnreadCount());
       setRead(true);
     }
-  }, [callCount]);
+  }, [readCallCount]);
+
+  useEffect(() => {
+    if (unreadCallCount <= 0) return;
+    if (unreadResponseStatusCode === 200) {
+      dispatch(incrementUnreadCount());
+      setRead(false);
+    }
+  }, [unreadCallCount]);
 
   useEffect(() => {
     (async () => {
@@ -59,14 +89,19 @@ const NotificationEntryOptionMenu = ({
       }}
     >
       {read ? (
-        <button className="font-medium w-fit grow flex flex-col items-start justify-center p-3">
+        <button
+          className="font-medium w-fit grow flex flex-col items-start justify-center p-3"
+          onClick={() => {
+            toggleNotificationsAsReadStatus();
+          }}
+        >
           Mark as Unread
         </button>
       ) : (
         <button
           className="font-medium w-fit grow flex flex-col items-start justify-center p-3"
           onClick={() => {
-            markNotificationsAsRead();
+            toggleNotificationsAsReadStatus();
           }}
         >
           Mark as read
@@ -102,19 +137,28 @@ const NotificationEntryOptionButton = ({
 };
 
 const NotificationEntry = ({
+  action,
+  affected,
   id,
   textContent,
   read,
   datetimeStr,
-  setCurrentUnreadNotificationsCount,
 }) => {
   /*
    * TODO:
    * 1. Add an element for displaying the date and time of the notification
    * 2. Redirect to the URL of the notification when clicking a notification
    */
+  const currentUnreadNotificationsCount = useSelector(
+    (state) => state.notification.unreadCount
+  );
   const [optionsMenuVisible, setOptionsMenuVisible] = useState(false);
   const [currentRead, setCurrentRead] = useState(read);
+  const notificationURL = generateNotificationURL(action, affected);
+
+  useEffect(() => {
+    if (currentUnreadNotificationsCount <= 0) setCurrentRead(true);
+  }, [currentUnreadNotificationsCount]);
 
   return (
     <div className="p-6 flex items-center hover:bg-slate-100 relative">
@@ -123,9 +167,6 @@ const NotificationEntry = ({
           id={id}
           read={currentRead}
           setRead={setCurrentRead}
-          setCurrentUnreadNotificationsCount={
-            setCurrentUnreadNotificationsCount
-          }
         />
       )}
       <div className="w-5/6 flex items-center">
@@ -135,7 +176,9 @@ const NotificationEntry = ({
           <div className="p-1 bg-sky-500 rounded-full w-2/8"></div>
         )}
         <div className="ml-6">
-          <p className="break-words w-full">{textContent}</p>
+          <Link to={notificationURL}>
+            <span className="block break-words w-full">{textContent}</span>
+          </Link>
         </div>
       </div>
       <div className="flex justify-end w-1/6">
@@ -153,8 +196,8 @@ const NotificationDropDownMenu = ({
   notifications,
   isLoading,
   currentUnreadNotificationsCount,
-  setCurrentUnreadNotificationsCount,
 }) => {
+  const dispatch = useDispatch();
   const csrfToken = useRef(null);
   const { responseStatusCode, callCount, makeAPICall, error } =
     useSimpleAPICall();
@@ -176,7 +219,7 @@ const NotificationDropDownMenu = ({
 
   useEffect(() => {
     if (callCount <= 0) return;
-    if (responseStatusCode === 200) setCurrentUnreadNotificationsCount(0);
+    if (responseStatusCode === 200) dispatch(setUnreadCount(0));
   }, [callCount]);
 
   useEffect(() => {
@@ -184,10 +227,7 @@ const NotificationDropDownMenu = ({
       csrfToken.current = await getCSRFToken();
     })();
   }, []);
-  /*
-   * TODO:
-   * 1. Add a display for the number of unread notifications
-   */
+
   return (
     <div
       className="w-96 absolute p-2 rounded-md"
@@ -204,15 +244,13 @@ const NotificationDropDownMenu = ({
         </div>
         {!isLoading &&
           notifications.map((notification) => {
-            console.log(notification);
             return (
               <NotificationEntry
+                action={notification.action}
+                affected={notification.affected}
                 id={notification.id}
                 textContent={notification.notification}
                 read={notification.read}
-                setCurrentUnreadNotificationsCount={
-                  setCurrentUnreadNotificationsCount
-                }
               />
             );
           })}
@@ -240,12 +278,17 @@ const NotificationUnreadCount = ({ count }) => {
 };
 
 export const NotificationDropDownButton = ({ menuReference }) => {
+  const dispatch = useDispatch();
   const currentLocation = useLocation();
-  const notificationBoxElement = useRef(null);
-  const [currentNotifications, setCurrentNotifications] = useState([]);
-  const [currentNotificationsCount, setCurrentNotificationsCount] = useState(0);
-  const [currentUnreadNotificationsCount, setCurrentUnreadNotificationsCount] =
-    useState(0);
+  const currentNotifications = useSelector(
+    (state) => state.notification.notifications
+  );
+  const currentNotificationsCount = useSelector(
+    (state) => state.notification.totalCount
+  );
+  const currentUnreadNotificationsCount = useSelector(
+    (state) => state.notification.unreadCount
+  );
 
   const {
     notifications,
@@ -270,11 +313,9 @@ export const NotificationDropDownButton = ({ menuReference }) => {
   }, [currentLocation]);
 
   useEffect(() => {
-    setCurrentNotifications((prev) => {
-      return [...prev, ...notifications];
-    });
-    setCurrentNotificationsCount(notificationsCount);
-    setCurrentUnreadNotificationsCount(unreadNotificationsCount);
+    dispatch(setNotifications([...currentNotifications, ...notifications]));
+    dispatch(setUnreadCount(unreadNotificationsCount));
+    dispatch(setTotalCount(notificationsCount));
   }, [loadNotificationsAttemptCount]);
 
   return (
@@ -291,9 +332,8 @@ export const NotificationDropDownButton = ({ menuReference }) => {
       <NotificationDropDownMenu
         menuReference={menuReference}
         isLoading={isLoadingNotifications}
-        notifications={notifications}
+        notifications={currentNotifications}
         currentUnreadNotificationsCount={currentUnreadNotificationsCount}
-        setCurrentUnreadNotificationsCount={setCurrentUnreadNotificationsCount}
       />
     </button>
   );

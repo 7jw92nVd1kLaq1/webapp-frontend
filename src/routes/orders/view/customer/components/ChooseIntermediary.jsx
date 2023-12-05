@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 const IntermediaryEntryBoxUserInfo = ({ username, reference }) => {
   return (
     <div
-      className="absolute shadow-md rounded-xl p-5 bg-white left-0 top-[99%] hidden"
+      className="absolute shadow-md rounded-xl p-5 bg-stone-100 left-0 top-[99%] hidden"
       ref={reference}
     >
       <p className="text-[18px] font-medium">{username}</p>
@@ -69,10 +69,10 @@ const IntermediaryEntryBox = ({
   }, []);
 
   return (
-    <div className="p-10 rounded-2xl bg-stone-100 w-96 border border-stone-300">
+    <div className="p-10 rounded-2xl bg-white w-96 shadow-lg">
       <div className="text-[24px]">
         <div className="relative w-full" ref={usernameElement}>
-          <p className="font-semibold">{username}</p>
+          <p className="font-bold">{username}</p>
           <IntermediaryEntryBoxUserInfo
             username={username}
             reference={userInfo}
@@ -274,45 +274,18 @@ const ChooseIntermediary = ({ intermediaries, intermediaryChat }) => {
           toggleModal={toggleModal}
         />
       </Modal>
-      <div className="divide-y divide-slate-300">
-        <div className="flex flex-col items-center">
-          <div className="mt-28 relative w-48">
-            <img
-              src={confetti}
-              className="w-48 h-48 absolute"
-              style={{
-                transform: "translate(-50%, -50%)",
-                top: "50%",
-                left: "50%",
-              }}
-            />
-            <div
-              style={{
-                transform: "translate(-50%, -50%)",
-                top: "50%",
-                left: "50%",
-              }}
-              className="w-32 h-32 rounded-full border-4 border-black absolute bg-white mx-auto"
-            ></div>
-            <div className="w-32 h-32 rounded-full border-4 border-black relative mx-auto">
-              <img
-                src={addIntermediary}
-                className="w-16 h-16 absolute"
-                style={{
-                  transform: "translate(-50%, -50%)",
-                  top: "50%",
-                  left: "50%",
-                }}
-              />
-            </div>
-          </div>
-          <p className="mt-16 text-[24px] font-semibold">Assign Intermediary</p>
-          <p className="mt-2 mb-20 text-[16px] text-center">
-            It's time to choose an intermediary for your order!
-          </p>
+      <div>
+        <div className="mt-16">
+          <p className="text-[28px] font-semibold">Select Intermediary</p>
         </div>
-        <div className="text-[20px] py-10">
+        <div className="text-[20px]">
           <div className="flex items-start flex-wrap gap-4 my-10">
+            <IntermediaryEntryBox
+              username={"Fucker"}
+              rate={30}
+              chatToggleCallback={toggleChat}
+              modalToggleCallback={toggleModal}
+            />
             {intermediaries &&
               intermediaries.length >= 1 &&
               intermediaries.map((intermediary) => {

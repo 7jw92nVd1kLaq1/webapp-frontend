@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
+import { backendURL } from "@/constants";
 
 const useOrderCreateRequestItem = () => {
   const access_token = useSelector((state) => state.userSession.access_token);
@@ -30,10 +31,7 @@ const useOrderCreateRequestItem = () => {
       credentials: "include",
     };
 
-    const resp = await fetch(
-      "http://127.0.0.1:8000/api/parseItemURL/",
-      fetchOptions
-    );
+    const resp = await fetch(`${backendURL}/api/parseItemURL/`, fetchOptions);
     if (resp.ok) changeIsLoading(true);
   };
 

@@ -234,8 +234,8 @@ const AdditionalRequestForm = ({ additionalReq, toggleModalCallback }) => {
 
 const ImmutableAdditionalRequest = ({ additionalReq = "" }) => {
   return (
-    <div className="mt-7 divide-y divide-slate-300">
-      <div className="shadow-md rounded-2xl border border-slate-300 p-4">
+    <div>
+      <div className="shadow-md rounded-2xl border border-stone-300 p-4">
         <div className="relative">
           <p className="text-stone-600">Additional Request</p>
         </div>
@@ -280,17 +280,14 @@ const AdditionalRequest = ({ additionalReq = "" }) => {
   }, []);
 
   return (
-    <div className="mt-7 divide-y divide-slate-300">
+    <div className="mt-7">
       <Modal isModalOpen={isModalOpen}>
         <AdditionalRequestForm
           additionalReq={additionalReq}
           toggleModalCallback={toggleModal}
         />
       </Modal>
-      <div
-        className="shadow-md rounded-2xl border border-slate-300 p-4"
-        ref={elementRef}
-      >
+      <div className="shadow-md rounded-2xl p-4 bg-white" ref={elementRef}>
         <div className="relative">
           <p className="text-stone-600">Additional Request</p>
           <ButtonsGroup
@@ -628,8 +625,8 @@ const AddressDisplay = ({ orderAddress }) => {
 
 const ImmutableAddress = ({ address }) => {
   return (
-    <div className="mt-7 divide-y divide-slate-300">
-      <div className="shadow-md rounded-2xl border border-slate-300 p-4">
+    <div>
+      <div className="shadow-md rounded-2xl border border-stone-300 p-4">
         <div className="relative">
           <p className="text-stone-600">Shipping Address</p>
         </div>
@@ -669,14 +666,11 @@ const Address = ({ address }) => {
   }, []);
 
   return (
-    <div className="mt-7 divide-y divide-slate-300">
+    <div className="mt-7 ">
       <Modal isModalOpen={isModalOpen}>
         <AddressForm address={address} toggleModalCallback={toggleModal} />
       </Modal>
-      <div
-        className="shadow-md rounded-2xl border border-slate-300 p-4"
-        ref={elementRef}
-      >
+      <div className="shadow-md rounded-2xl p-4 bg-white" ref={elementRef}>
         <div className="relative">
           <p className="text-stone-600">Shipping Address</p>
           <ButtonsGroup
@@ -712,10 +706,10 @@ export const OrderInfo = ({
   );
 
   return (
-    <div className="text-[16px] lg:w-1/2 xl:w-full gap-2 items-start mt-7 xl:mt-4">
+    <div className="text-[16px] lg:w-1/2 xl:w-full gap-2 items-start mt-7 xl:mt-0">
       <p className="text-stone-600">ORDER INFO</p>
       <div className="mt-7">
-        <div className="shadow-md rounded-2xl border border-slate-300 p-4">
+        <div className="shadow-md rounded-2xl p-5 bg-white">
           <div>
             <p className="text-stone-600">Order ID</p>
             <p className="mt-2">{orderId}</p>
