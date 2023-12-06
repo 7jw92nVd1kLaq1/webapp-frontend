@@ -4,6 +4,9 @@ import {
   createCentrifugeClientObj,
   subscribeToChannelForAcceptingPaymentInfo,
 } from "@/utils/websocket";
+import { getSubscriptionToken } from "@/utils/authentication";
+import { getCSRFToken } from "@/utils/cookie";
+import useOrderViewCustomerPaymentInfo from "@/hooks/useOrderViewCustomerPaymentInfo";
 
 import btc from "@/assets/bitcoin.svg";
 import xmr from "@/assets/xmr.png";
@@ -12,6 +15,7 @@ import pay from "@/assets/pay.svg";
 import expand from "@/assets/expand.svg";
 import shrink from "@/assets/shrink.svg";
 import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const PaymentDueInfo = ({ paymentHistoryRef }) => {
   const expandRef = useRef(null);
@@ -77,10 +81,6 @@ const PaymentHistoryEntryDetail = ({ reference }) => {
       <div className="mt-4">
         <p className="text-gray-400">Destination Address</p>
         <p className="mt-1">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</p>
-      </div>
-      <div className="mt-4">
-        <p className="text-gray-400">Confirmation(s)</p>
-        <p className="mt-1">0</p>
       </div>
       <div className="mt-4">
         <p className="text-gray-400">Status</p>
@@ -206,12 +206,47 @@ const BillingInfo = () => {
 
 const Deposit = () => {
   const paymentHistoryRef = useRef(null);
-
-  const subToken = localStorage.getItem("subToken");
+  const { paymentInfo, isLoading, changePaymentInfo, loadPaymentInfo } =
+    useOrderViewCustomerPaymentInfo();
+  const { orderId } = useParams();
+  const subToken = useRef(null);
   const subObj = useRef(null);
   const centrifugeObj = useRef(null);
+  const username = useSelector((state) => state.userSession.username);
+  const access_token = localStorage.getItem("access_token");
 
-  const { orderId } = useParams();
+  const useEffectAsync = async () => {
+    const csrfToken = await getCSRFToken();
+    localStorage.setItem("CSRFToken", csrfToken);
+
+    const channel = `${orderId}#${username}`;
+    const freshSubToken = await getSubscriptionToken(channel);
+    subToken.current = freshSubToken;
+
+    const centrifugeClient = createCentrifugeClientObj(access_token);
+    centrifugeObj.current = centrifugeClient;
+
+    const subChannel = subscribeToChannelForAcceptingPaymentInfo(
+      centrifugeClient,
+      subToken.current,
+      changePaymentInfo,
+      orderId
+    );
+    subObj.current = subChannel;
+
+    subObj.current.subscribe();
+    centrifugeObj.current.connect();
+
+    loadPaymentInfo(orderId);
+  };
+
+  useEffect(() => {
+    useEffectAsync();
+    return () => {
+      subObj.current.unsubscribe();
+      centrifugeObj.current.disconnect();
+    };
+  }, []);
 
   return (
     <div>

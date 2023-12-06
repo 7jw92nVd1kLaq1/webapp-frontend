@@ -313,7 +313,9 @@ export const NotificationDropDownButton = ({ menuReference }) => {
   }, [currentLocation]);
 
   useEffect(() => {
-    dispatch(setNotifications([...currentNotifications, ...notifications]));
+    dispatch(
+      setNotifications([...notifications, ...currentNotifications].slice(0, 3))
+    );
     dispatch(setUnreadCount(unreadNotificationsCount));
     dispatch(setTotalCount(notificationsCount));
   }, [loadNotificationsAttemptCount]);
