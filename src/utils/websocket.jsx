@@ -43,7 +43,7 @@ export const subscribeToChannelForAcceptingPaymentInfo = (
   sub.on("publication", (ctx) => {
     console.log("Item Received \n\n");
     console.log(ctx.data);
-    callback(ctx.data.item);
+    callback(ctx.data.data);
   });
 
   return sub;

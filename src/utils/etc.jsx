@@ -1,4 +1,10 @@
 export const calculateTotalPriceUSD = (items, additional_cost) => {
+  if (typeof items != "object") {
+    throw new Error("The first argument must be of object type.");
+  }
+  if (typeof additional_cost != "string") {
+    throw new Error("The second argument must be of string type.");
+  }
   const subTotal = items.reduce(
     (partialSum, a) => partialSum + a.quantity * parseFloat(a.price),
     0
@@ -7,11 +13,33 @@ export const calculateTotalPriceUSD = (items, additional_cost) => {
   return subTotal + parseFloat(additional_cost);
 };
 
+export const calculateDiscountPriceUSD = (price, discount) => {
+  if (typeof price != "number") {
+    throw new Error("The first argument must be of number type.");
+  }
+  if (typeof discount != "number" && typeof discount != "string") {
+    throw new Error("The second argument must be of number type.");
+  }
+  if (typeof discount === "string") {
+    discount = parseFloat(discount);
+  }
+  return (price * discount).toFixed(2);
+};
+
 export const calculateTotalPriceCrypto = (priceUSD, rate) => {
+  if (typeof priceUSD != "number") {
+    throw new Error("The first argument must be of number type.");
+  }
+  if (typeof rate != "number") {
+    throw new Error("The second argument must be of number type.");
+  }
   return (priceUSD / rate).toFixed(8);
 };
 
 export const formatDateStringMMDDYYYY = (date) => {
+  if (typeof date != "object") {
+    throw new Error("The first argument must be of object type.");
+  }
   return `${date.getMonth()}/${date.getDay()}/${date.getFullYear()}`;
 };
 

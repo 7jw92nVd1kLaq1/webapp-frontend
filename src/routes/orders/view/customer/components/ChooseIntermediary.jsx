@@ -6,12 +6,21 @@ import { backendURL } from "@/constants";
 import Modal from "@/components/Modal";
 
 import star from "@/assets/star.svg";
+import chat from "@/assets/chat_white.svg";
+import check from "@/assets/check_white.svg";
+import refuse from "@/assets/refuse.svg";
 import confetti from "@/assets/confetti.png";
 import addIntermediary from "@/assets/add_intermediary.svg";
+import btc from "@/assets/bitcoin.svg";
 
-import { setOrder } from "@/redux/viewOrderAsCustomerSlice";
+import {
+  setOrder,
+  setChatOpen,
+  setChatRecipient,
+} from "@/redux/viewOrderAsCustomerSlice";
 
 import { getCSRFToken } from "@/utils/cookie";
+import { calculateTotalPriceUSD, calculateDiscountPriceUSD } from "@/utils/etc";
 import { FailureCircle, WaitingCircle } from "@/utils/waitingCircle";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -37,70 +46,126 @@ const IntermediaryEntryBoxUserInfo = ({ username, reference }) => {
   );
 };
 
-const IntermediaryEntryBox = ({
+const IntermediaryEntryBoxNew = ({
   username,
-  rate,
-  chatToggleCallback,
-  modalToggleCallback,
+  data,
+  toggleModal,
+  totalCost,
 }) => {
-  /*
-   * Calculate the total price of the order in both dollar and Cryptocurrency by applying
-   * the rate offered by a candidate
-   */
-  const usernameElement = useRef(null);
-  const userInfo = useRef();
-
-  const displayUserInfo = () => {
-    userInfo.current.classList.remove("hidden");
-  };
-  const hideUserInfo = () => {
-    userInfo.current.classList.add("hidden");
-  };
-
-  useEffect(() => {
-    const usernameElementCopy = usernameElement.current;
-    usernameElementCopy.addEventListener("mouseover", displayUserInfo);
-    usernameElementCopy.addEventListener("mouseout", hideUserInfo);
-
-    return () => {
-      usernameElementCopy.removeEventListener("mouseover", displayUserInfo);
-      usernameElementCopy.removeEventListener("mouseout", hideUserInfo);
-    };
-  }, []);
-
+  console.log(data);
   return (
-    <div className="p-10 rounded-2xl bg-white w-96 shadow-lg">
-      <div className="text-[24px]">
-        <div className="relative w-full" ref={usernameElement}>
-          <p className="font-bold">{username}</p>
-          <IntermediaryEntryBoxUserInfo
-            username={username}
-            reference={userInfo}
+    <div className="sm:w-96 bg-white rounded-xl shadow-md">
+      <IntermediaryEntryBoxUserInformation
+        username={username}
+        rating={!data.average_rating ? 0 : data.average_rating}
+        reviewCount={!data.review_count ? 0 : data.review_count}
+      />
+      <div className="p-6">
+        <div className="flex items-stretch gap-3 mb-4">
+          <button
+            className="rounded-xl p-3 bg-sky-600 flex justify-center items-center gap-2 w-1/2 shadow-md"
+            onClick={() => {
+              toggleModal(username);
+            }}
+          >
+            <img src={check} className="block w-7 h-7" />
+            <p className="text-[16px] text-white">Accept</p>
+          </button>
+          <button className="rounded-xl p-3 bg-red-600 flex justify-center items-center gap-2 w-1/2 shadow-md">
+            <img src={refuse} className="block w-7 h-7" />
+            <p className="text-[16px] text-white">Reject</p>
+          </button>
+        </div>
+        <p className="text-[14px] font-medium mb-2">Current Offer</p>
+        <div className="flex flex-col gap-2 p-2">
+          <IntermediaryEntryBoxCurrentOffer
+            rate={data.offers[0].rate}
+            totalCost={totalCost}
           />
         </div>
-        <p className="font-medium">Offered you</p>
-        <p className="font-semibold">{rate}% off!</p>
+        {data.offers.length > 1 && (
+          <div>
+            <p className="text-[14px] font-medium mt-3 mb-2">
+              Rejected Offer(s)
+            </p>
+            <div className="flex flex-col gap-2 p-2">
+              {data.offers.slice(1).map((offer) => {
+                return (
+                  <IntermediaryEntryBoxRejectedOffer
+                    rate={offer.rate}
+                    totalCost={totalCost}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
-      <div className="mt-14 text-[24px]">
-        <p className="font-medium">You Pay</p>
-        <div className="font-semibold">
-          <p>0.20000000</p>
-          <p>BTC</p>
+    </div>
+  );
+};
+
+const IntermediaryEntryBoxUserInformation = ({
+  username,
+  rating,
+  reviewCount,
+}) => {
+  const dispatch = useDispatch();
+  return (
+    <div className="border-b border-stone-300 p-6 flex items-center justify-between">
+      <div className="flex flex-col items-start gap-2">
+        <p className="font-medium">{username}</p>
+        <button
+          className="p-2 flex items-center text-white text-[14px] gap-2 bg-green-600 rounded-lg shadow-md"
+          onClick={() => {
+            dispatch(setChatOpen(true));
+            dispatch(setChatRecipient(username));
+          }}
+        >
+          <img src={chat} className="block w-5 h-5" />
+          <p>Chat</p>
+        </button>
+      </div>
+      <div className="flex flex-col items-end text-[16px] gap-1">
+        <div className="flex items-center gap-2">
+          <img src={star} className="block w-6 h-6" />
+          <p className="font-medium">{rating}</p>
+          <p className="font-light">/</p>
+          <p className="font-medium">5</p>
         </div>
+        <p className="text-[14px]">({reviewCount})</p>
       </div>
-      <div className="w-full mt-14 flex gap-3 text-[16px]">
-        <button
-          className="block bg-green-600 text-white py-5 px-auto grow rounded-lg"
-          onClick={chatToggleCallback}
-        >
-          <p className="text-center font-medium">Message</p>
-        </button>
-        <button
-          className="block bg-sky-600 text-white py-5 px-auto grow rounded-lg"
-          onClick={() => modalToggleCallback(username)}
-        >
-          <p className="text-center font-medium">Select</p>
-        </button>
+    </div>
+  );
+};
+
+const IntermediaryEntryBoxCurrentOffer = ({ rate, totalCost }) => {
+  const rateInDollar = calculateDiscountPriceUSD(totalCost, rate);
+  const finalCost = (totalCost - rateInDollar).toFixed(2);
+  return (
+    <div className="p-6 border border-stone-300 rounded-lg flex items-center justify-between">
+      <img src={btc} className="block w-12 h-12" />
+      <div className="text-right">
+        <p className="font-medium">${finalCost}</p>
+        <p className="font-medium text-[14px] text-green-600">
+          -${rateInDollar}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const IntermediaryEntryBoxRejectedOffer = ({ rate, totalCost }) => {
+  const rateInDollar = calculateDiscountPriceUSD(totalCost, rate);
+  const finalCost = (totalCost - rateInDollar).toFixed(2);
+  return (
+    <div className="p-6 border border-stone-300 rounded-lg flex items-center justify-between">
+      <img src={btc} className="block w-12 h-12 opacity-50" />
+      <div className="text-right">
+        <p className="font-medium text-gray-400">${finalCost}</p>
+        <p className="font-medium text-[14px] text-green-600">
+          -${rateInDollar}
+        </p>
       </div>
     </div>
   );
@@ -109,7 +174,7 @@ const IntermediaryEntryBox = ({
 const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
   const dispatch = useDispatch();
   const csrfToken = useRef(null);
-  const access_token = useSelector((state) => state.userSession.access_token);
+  const access_token = localStorage.getItem("access_token");
   const order = useSelector((state) => state.viewOrderAsCustomer.order);
 
   const {
@@ -235,10 +300,22 @@ const ChooseIntermediaryConfirmation = ({ username, toggleModal }) => {
   );
 };
 
-const ChooseIntermediary = ({ intermediaries, intermediaryChat }) => {
+const ChooseIntermediary = ({ intermediaryChat }) => {
   /*
    * Assign to each entry the total price of the order.
    */
+
+  const intermediaries = useSelector(
+    (state) => state.viewOrderAsCustomer.order.orderintermediarycandidate_set
+  );
+  const orderItems = useSelector(
+    (state) => state.viewOrderAsCustomer.order.order_items
+  );
+  const additionalCost = useSelector(
+    (state) => state.viewOrderAsCustomer.order.payment.payment.additional_cost
+  );
+  const totalCost = calculateTotalPriceUSD(orderItems, additionalCost);
+
   const { isModalOpen, openModal, closeModal } = useIsModalOpen();
   const chosenUsername = useRef(null);
 
@@ -251,20 +328,7 @@ const ChooseIntermediary = ({ intermediaries, intermediaryChat }) => {
     }
   };
 
-  const toggleChat = () => {
-    const elem = intermediaryChat.current;
-    if (elem.classList.contains("w-0")) {
-      elem.classList.remove("w-0");
-      elem.classList.add("lg:w-2/5");
-      elem.classList.add("md:w-1/2");
-      elem.classList.add("w-full");
-    } else {
-      elem.classList.add("w-0");
-      elem.classList.remove("lg:w-2/5");
-      elem.classList.remove("md:w-1/2");
-      elem.classList.remove("w-full");
-    }
-  };
+  console.log(intermediaries);
 
   return (
     <div>
@@ -278,23 +342,16 @@ const ChooseIntermediary = ({ intermediaries, intermediaryChat }) => {
         <div className="mt-16">
           <p className="text-[28px] font-semibold">Select Intermediary</p>
         </div>
-        <div className="text-[20px]">
-          <div className="flex items-start flex-wrap gap-4 my-10">
-            <IntermediaryEntryBox
-              username={"Fucker"}
-              rate={30}
-              chatToggleCallback={toggleChat}
-              modalToggleCallback={toggleModal}
-            />
-            {intermediaries &&
-              intermediaries.length >= 1 &&
+        <div className="text-[20px] mt-10">
+          <div className="sm:flex items-start flex-wrap gap-4 my-10">
+            {intermediaries.length >= 1 &&
               intermediaries.map((intermediary) => {
                 return (
-                  <IntermediaryEntryBox
+                  <IntermediaryEntryBoxNew
+                    data={intermediary}
                     username={intermediary.user.username}
-                    rate={30}
-                    chatToggleCallback={toggleChat}
-                    modalToggleCallback={toggleModal}
+                    toggleModal={toggleModal}
+                    totalCost={totalCost}
                   />
                 );
               })}

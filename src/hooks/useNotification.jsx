@@ -3,18 +3,10 @@ import { useSimpleAPICall } from "./useSimpleAPICall";
 
 import { backendURL } from "@/constants";
 
-import {
-  setNotifications,
-  setUnreadCount,
-  setTotalCount,
-} from "@/redux/notificationSlice";
-import { useDispatch, useSelector } from "react-redux";
-
 const useNotification = (all = false) => {
   const notificationCount = useRef(0);
   const unreadNotificationCount = useRef(0);
   const notifications = useRef([]);
-  const loadNotificationsAttemptCount = useRef(0);
   const errorNotifications = useRef(null);
 
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
@@ -37,7 +29,6 @@ const useNotification = (all = false) => {
     }
 
     const url = `${backendURL}/api/retrieve-notifications/${argument}`;
-
     const fetchOptions = {
       method: "GET",
       headers: {
@@ -45,7 +36,6 @@ const useNotification = (all = false) => {
         Authorization: `Bearer ${access_token}`,
       },
     };
-
     await makeAPICall(url, fetchOptions);
   };
 
@@ -60,18 +50,16 @@ const useNotification = (all = false) => {
       errorNotifications.current =
         "Error has occurred. Please refresh the page and try again.";
     } else {
-      if (
-        typeof responseData === "object" &&
-        responseData.hasOwnProperty("reason")
-      ) {
-        errorNotifications.current = responseData.reason;
+      if (responseData) {
+        errorNotifications.current = responseData.hasOwnProperty("reason")
+          ? responseData.reason
+          : "Unknown error has occurred. Please refresh the page and try again.";
       } else {
         errorNotifications.current =
           "Unknown error has occurred. Please refresh the page and try again.";
       }
     }
 
-    loadNotificationsAttemptCount.current = callCount;
     setIsLoadingNotifications(false);
   }, [callCount]);
 
@@ -79,7 +67,7 @@ const useNotification = (all = false) => {
     notifications: notifications.current,
     notificationsCount: notificationCount.current,
     loadNotifications,
-    loadNotificationsAttemptCount: loadNotificationsAttemptCount.current,
+    loadNotificationsAttemptCount: callCount,
     unreadNotificationsCount: unreadNotificationCount.current,
     errorNotifications: errorNotifications.current,
     isLoadingNotifications,

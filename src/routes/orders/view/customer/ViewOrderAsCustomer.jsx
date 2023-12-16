@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import notification from "@/assets/notification.svg";
 import backArrow from "@/assets/back_arrow.svg";
@@ -9,6 +9,7 @@ import placed from "@/assets/order_placed.svg";
 import shipping from "@/assets/shipping.svg";
 import done from "@/assets/done.svg";
 import send from "@/assets/send.svg";
+import hello from "@/assets/hello.svg";
 
 import { backendURL } from "@/constants";
 
@@ -18,8 +19,13 @@ import OrderStageChooser from "./components/OrderStageChooser";
 import { useParams } from "react-router-dom";
 import { useSimpleAPICall } from "@/hooks/useSimpleAPICall";
 
-import { setOrder } from "@/redux/viewOrderAsCustomerSlice";
+import {
+  setOrder,
+  setChatClose,
+  setChatRecipient,
+} from "@/redux/viewOrderAsCustomerSlice";
 import { FailureCircle, WaitingCircle } from "@/utils/waitingCircle";
+import { getCSRFToken } from "@/utils/cookie";
 
 const OrderProgressIndicatorStage = ({ image, name, step }) => {
   return (
@@ -81,57 +87,124 @@ const IntermediaryMessage = ({ message }) => {
   );
 };
 
-const IntermediaryOfferChat = ({ reference, closeCallback }) => {
+const IntermediaryOfferChat = () => {
+  const dispatch = useDispatch();
+  const access_token = useSelector((state) => state.userSession.access_token);
+  const chatRecipient = useSelector(
+    (state) => state.viewOrderAsCustomer.chatRecipient
+  );
+  const { orderId } = useParams();
+  const [chatLog, setChatLog] = useState(null);
+
+  const { responseData, makeAPICall, isLoading, responseStatusCode } =
+    useSimpleAPICall();
+
+  const requestMessagesAsync = async () => {
+    if (!chatRecipient) {
+      console.log("chatRecipient is null");
+      return;
+    }
+    const csrfToken = await getCSRFToken();
+    const fetchOption = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`,
+        "X-CSRFToken": csrfToken,
+      },
+    };
+    const url = `${backendURL}/api/order-messages/${orderId}/?recipient=${chatRecipient}`;
+    await makeAPICall(url, fetchOption);
+  };
+
+  useEffect(() => {
+    requestMessagesAsync();
+    return () => {
+      dispatch(setChatRecipient(null));
+    };
+  }, []);
+
+  useEffect(() => {
+    if (responseStatusCode === 200) {
+      setChatLog(responseData);
+    }
+  }, [responseStatusCode]);
+
+  if (!isLoading && responseStatusCode >= 400) {
+    return (
+      <div className="fixed flex flex-col justify-center items-center top-0 bottom-0 right-0 h-screen bg-white text-black shadow-lg overflow-y-auto z-20 w-full xl:w-1/3 lg:w-2/5 md:w-1/2">
+        <FailureCircle numbers={100} unit={"px"} />
+        <button
+          className="p-3 rounded-xl bg-sky-600 text-white mt-5 text-[16px] font-medium"
+          onClick={() => {
+            dispatch(setChatClose());
+          }}
+        >
+          Close
+        </button>
+      </div>
+    );
+  }
+  if (chatLog) {
+    return (
+      <div className="fixed flex flex-col top-0 bottom-0 right-0 h-screen bg-white text-black shadow-lg overflow-y-auto z-20 divide-y divide-slate-300 w-full xl:w-1/3 lg:w-2/5 md:w-1/2">
+        <div className="p-4 bg-red-600">
+          <img src={notification} className="block w-7 h-7" />
+        </div>
+        <div className="px-7 py-8 flex gap-5 items-center">
+          <button
+            onClick={() => {
+              dispatch(setChatClose());
+            }}
+          >
+            <img className="block w-7 h-7" src={backArrow} />
+          </button>
+          <p className="text-lg">
+            Chat with <span className="text-xl font-bold">{chatRecipient}</span>
+          </p>
+        </div>
+        {chatLog.length > 0 && (
+          <div className="px-7 py-8 flex flex-col w-full gap-3 grow overflow-y-auto text-[16px]">
+            {responseData.map((message) => {
+              if (message.hasOwnProperty("recipient")) {
+                return <UserMessage message={message.message} />;
+              } else {
+                return <IntermediaryMessage message={message.message} />;
+              }
+            })}
+          </div>
+        )}
+        {chatLog.length === 0 && (
+          <div className="px-7 py-8 flex flex-col justify-center items-center w-full gap-3 grow overflow-y-auto">
+            <img src={hello} className="w-24 h-24" />
+            <p className="text-[20px] font-semibold">Say Hi :)</p>
+          </div>
+        )}
+        <div className="h-24 flex p-2 px-7 gap-3 items-center">
+          <input
+            type="text"
+            className="p-2 grow border-0"
+            placeholder="Type Your Message"
+          />
+          <button className="flex items-center justify-center p-3 bg-black text-white rounded-xl shadow-md gap-3">
+            <img src={send} className="w-4 h-4" />
+            Send
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
-    <div
-      ref={reference}
-      className="fixed flex flex-col top-0 bottom-0 right-0 h-screen bg-white text-black w-0 shadow-lg overflow-y-auto z-20 divide-y divide-slate-300"
-    >
-      <div className="p-4 bg-red-600">
-        <img src={notification} className="block w-7 h-7" />
-      </div>
-      <div className="px-7 py-8 flex gap-5 items-center">
-        <button onClick={closeCallback}>
-          <img className="block w-7 h-7" src={backArrow} />
-        </button>
-        <p className="text-lg">
-          Chat with <span className="text-xl font-bold">Username</span>
-        </p>
-      </div>
-      <div className="px-7 py-8 flex flex-col w-full gap-3 grow overflow-y-auto text-[16px]">
-        <UserMessage message={"Hey, this is really nice!"} />
-        <IntermediaryMessage
-          message={
-            "I totally agree with you. It's going to be a great opportunity for both of us!"
-          }
-        />
-        <IntermediaryMessage
-          message={
-            "I totally agree with you. It's going to be a great opportunity for both of us!"
-          }
-        />
-        <IntermediaryMessage
-          message={
-            "I totally agree with you. It's going to be a great opportunity for both of us!"
-          }
-        />
-        <IntermediaryMessage
-          message={
-            "I totally agree with you. It's going to be a great opportunity for both of us!"
-          }
-        />
-      </div>
-      <div className="h-24 flex p-2 px-7 gap-3 items-center">
-        <input
-          type="text"
-          className="p-2 grow border-0"
-          placeholder="Type Your Message"
-        />
-        <button className="flex items-center justify-center p-3 bg-black text-white rounded-xl shadow-md gap-3">
-          <img src={send} className="w-4 h-4" />
-          Send
-        </button>
-      </div>
+    <div className="fixed flex flex-col justify-center items-center top-0 bottom-0 right-0 h-screen bg-white text-black w-full xl:w-1/3 lg:w-2/5 md:w-1/2 shadow-lg overflow-y-auto z-20">
+      <WaitingCircle numbers={70} unit={"px"} />
+      <button
+        onClick={() => {
+          dispatch(setChatClose());
+        }}
+        className="p-3 rounded-xl bg-sky-600 text-white mt-5 text-[16px] font-medium"
+      >
+        Close
+      </button>
     </div>
   );
 };
@@ -147,26 +220,13 @@ export default function ViewOrderAsCustomer() {
     callCount,
   } = useSimpleAPICall();
   const access_token = useSelector((state) => state.userSession.access_token);
+  const chatOpen = useSelector((state) => state.viewOrderAsCustomer.chatOpen);
   const order = useSelector((state) => state.viewOrderAsCustomer.order);
 
   const cryptocurrencyTicker =
     order && order.payment.payment.payment_methods[0].ticker;
 
   const intermediaryChatElement = useRef();
-  const toggleOrderDetail = () => {
-    const elem = intermediaryChatElement.current;
-    if (elem.classList.contains("w-0")) {
-      elem.classList.remove("w-0");
-      elem.classList.add("lg:w-2/5");
-      elem.classList.add("md:w-1/2");
-      elem.classList.add("w-full");
-    } else {
-      elem.classList.add("w-0");
-      elem.classList.remove("lg:w-2/5");
-      elem.classList.remove("md:w-1/2");
-      elem.classList.remove("w-full");
-    }
-  };
 
   const requestOrderData = async () => {
     if (order) dispatch(setOrder(null));
@@ -187,6 +247,7 @@ export default function ViewOrderAsCustomer() {
   }, []);
 
   useEffect(() => {
+    console.log(responseData);
     if (responseStatusCode === 200) dispatch(setOrder(responseData));
 
     return () => {
@@ -212,10 +273,7 @@ export default function ViewOrderAsCustomer() {
   if (order) {
     return (
       <div>
-        <IntermediaryOfferChat
-          reference={intermediaryChatElement}
-          closeCallback={toggleOrderDetail}
-        />
+        {chatOpen && <IntermediaryOfferChat />}
         <div className="px-12 lg:px-16 py-12 bg-stone-100 flex flex-col divide-y divide-slate-300 z-10">
           <div className="flex justify-between items-center pb-4 text-[16px]">
             <div className="flex gap-2 items-center">

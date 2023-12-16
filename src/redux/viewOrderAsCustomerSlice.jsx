@@ -3,6 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   order: null,
   orderUpdateAPI: null,
+  chatOpen: false,
+  chatRecipient: null,
 };
 
 export const viewOrderAsCustomerSlice = createSlice({
@@ -11,6 +13,16 @@ export const viewOrderAsCustomerSlice = createSlice({
   reducers: {
     resetState: (state, action) => {
       return initialState;
+    },
+    setChatOpen: (state, action) => {
+      state.chatOpen = true;
+    },
+    setChatClose: (state, action) => {
+      state.chatOpen = false;
+    },
+    setChatRecipient: (state, action) => {
+      if (action.payload != null && typeof action.payload != "string") return;
+      state.chatRecipient = action.payload;
     },
     setOrder: (state, action) => {
       state.order = action.payload;
@@ -29,6 +41,9 @@ export const viewOrderAsCustomerSlice = createSlice({
 
 export const {
   resetState,
+  setChatOpen,
+  setChatClose,
+  setChatRecipient,
   setOrder,
   resetOrder,
   setOrderUpdateAPI,
